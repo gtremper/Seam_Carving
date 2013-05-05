@@ -1,3 +1,9 @@
-h1 { font-family: 'Helvetica Nueue'; cursor: pointer; }
+h1 { font-family: 'Helvetica Nueue'; 
+	cursor: pointer; 
+	float: center;
+}
 
-canvas {border:1px solid #000000;}
+canvas {border: 1px solid #000000;
+		float: center;
+		cursor: pointer; 
+}

@@ -4,16 +4,18 @@ $(document).ready(function(){
 	var context = canvas.getContext("2d");
 	var img = document.createElement("img");
 	var mouseDown = false;
-	var brushColor = "rgb(0, 0, 0)";
 	var hasText = true;
-	var clearCanvas = function () {
-			if (hasText) {
-				context.clearRect(0, 0, canvas.width, canvas.height);
-				hasText = false;
-			}
-		};
+	var imgWidth = -1;
+	var imgHeight = -1;
 	
-		   // Adding instructions
+	var clearCanvas = function () {
+		if (hasText) {
+			context.clearRect(0, 0, canvas.width, canvas.height);
+			hasText = false;
+		}
+	};
+	
+	// Adding instructions
 	context.fillText("Drop an image onto the canvas", 240, 200);
 	context.fillText("Click a spot to set as brush color", 240, 220);
     
@@ -21,7 +23,9 @@ $(document).ready(function(){
 	img.addEventListener("load", function () {
 		clearCanvas();
 		canvas.height = img.height;
-		canvas.width = img.width;
+		canvas.width = img.width*1.5;
+		imgHeight = img.height;
+		imgWidth = img.width;
 		context.drawImage(img, 0, 0);
 	}, false);
 	
@@ -49,27 +53,46 @@ $(document).ready(function(){
 	
 	// Detect mousedown
 	canvas.addEventListener("mousedown", function (evt) {
-		clearCanvas();
 		mouseDown = true;
-		context.beginPath();
 	}, false);
 
 	// Detect mouseup
 	canvas.addEventListener("mouseup", function (evt) {
 		mouseDown = false;
-		var colors = context.getImageData(evt.layerX, evt.layerY, 1, 1).data;
-		brushColor = "rgb(" + colors[0] + ", " + colors[1] + ", " + colors[2] + ")";
 	}, false);
 
 	// Draw, if mouse button is pressed
 	canvas.addEventListener("mousemove", function (evt) {
 		if (mouseDown) {
-			context.strokeStyle = brushColor;								
-			context.lineWidth = 20;
-			context.lineJoin = "round";
-			context.lineTo(evt.layerX+1, evt.layerY+1);
-			context.stroke();
+			//resizeImage(1);
 		}
 	}, false);
+	
+	$("#wider").click(function(){
+		resizeImage(5);
+	});
+	
+	$("#shorter").click(function(){
+		resizeImage(-5);
+	});
+	
+	var resizeImage = function(pixels){
+		var imgData = context.getImageData(0,0,imgWidth,imgHeight);
+		var newWidth = imgWidth+pixels;
+		var newImg = context.createImageData(newWidth,imgHeight);
+		var i = 0;
+		for (var y=0; y<imgData.data.length/4; y++){
+			if (y%imgWidth < newWidth){
+				newImg.data[4*i] = imgData.data[4*y];
+				newImg.data[4*i+1] = imgData.data[4*y+1];
+				newImg.data[4*i+2] = imgData.data[4*y+2];
+				newImg.data[4*i+3] = imgData.data[4*y+3];
+				i+=1;
+			}
+		}
+		imgWidth = newWidth;
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		context.putImageData(newImg,0,0);
+	};
 	
 });
