@@ -81,6 +81,7 @@ $(document).ready(function(){
 		var newWidth = imgWidth+pixels;
 		var newImg = context.createImageData(newWidth,imgHeight);
 		var i = 0;
+		var extra=0;
 		for (var y=0; y<imgData.data.length/4; y++){
 			if (y%imgWidth < newWidth){
 				newImg.data[4*i] = imgData.data[4*y];
@@ -88,6 +89,15 @@ $(document).ready(function(){
 				newImg.data[4*i+2] = imgData.data[4*y+2];
 				newImg.data[4*i+3] = imgData.data[4*y+3];
 				i+=1;
+				if (y%imgWidth === imgWidth-1){
+					for (extra=0; extra<pixels; extra++){
+						newImg.data[4*i] = 0;
+						newImg.data[4*i+1] = 0;
+						newImg.data[4*i+2] = 0;
+						newImg.data[4*i+3] = 255;
+						i+=1;
+					}
+				}
 			}
 		}
 		imgWidth = newWidth;
