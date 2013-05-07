@@ -1,5 +1,5 @@
 $(document).ready(function(){
-	
+
 	var canvas = document.getElementById("myCanvas");
 	var context = canvas.getContext("2d");
 	var img = document.createElement("img");
@@ -11,19 +11,19 @@ $(document).ready(function(){
     var grad_filter = [0, -1, 0,
                       -1,  0, 1,
                        0,  1, 0];
-	
+
 	var clearCanvas = function () {
 		if (hasText) {
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			hasText = false;
 		}
 	};
-	
+
 	// Adding instructions
 	context.fillText("Drop an image onto the canvas", 240, 200);
 	context.fillText("Click a spot to set as brush color", 240, 220);
-    
-	// Image for loading	
+
+	// Image for loading
 	img.addEventListener("load", function () {
 		clearCanvas();
 		canvas.height = img.height;
@@ -32,7 +32,7 @@ $(document).ready(function(){
 		imgWidth = img.width;
 		context.drawImage(img, 0, 0);
 	}, false);
-	
+
 	// To enable drag and drop
 	canvas.addEventListener("dragover", function (evt) {
 		evt.preventDefault();
@@ -54,7 +54,7 @@ $(document).ready(function(){
 		}
 		evt.preventDefault();
 	}, false);
-	
+
 	// Detect mousedown
 	canvas.addEventListener("mousedown", function (evt) {
 		mouseDown = true;
@@ -71,22 +71,35 @@ $(document).ready(function(){
 			//resizeImage(1);
 		}
 	}, false);
-	
+
+    var array_to_image = function(energies, width, height) {
+        var output = context.createImageData(width, height);
+        for (var i=0; i < energies.length; i++) {
+            output.data[i*4] = (energies[i]);
+            output.data[i*4+1] = (energies[i]);
+            output.data[i*4+2] = (energies[i]);
+            output.data[i*4+3] = (255);
+        }
+        context.putImageData(output,0,0);
+        return output;
+    };
+
 	$("#wider").click(function(){
 		resizeImage(5);
 	});
-	
+
 	$("#shorter").click(function(){
 		resizeImage(-5);
 	});
 
     $("#energy1").click(function() {
         var imgData = context.getImageData(0,0,imgWidth,imgHeight);
-        var gradient = Filters.energy1(imgData);
         context.clearRect(0, 0, canvas.width, canvas.height);
-        context.putImageData(gradient, 0, 0);
+        var energies = Filters.energy1(imgData);
+        var newimg = array_to_image(energies, imgWidth, imgHeight);
+        context.putImageData(newimg, 0, 0);
     });
-	
+
 	var resizeImage = function(pixels){
 		var imgData = context.getImageData(0,0,imgWidth,imgHeight); // single dimension array of RGBA
 		var newWidth = imgWidth+pixels;
@@ -115,5 +128,5 @@ $(document).ready(function(){
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.putImageData(newImg,0,0);
 	};
-	
+
 });
