@@ -87,7 +87,6 @@ $(document).ready(function(){
     };
 
     $("#width-slider").on('slide', $.debounce(250, function(e){
-        console.log(e.value-imgWidth);
         var amount = e.value-imgWidth;
         if (amount < 0) {
           for (var i=0; i<Math.abs(amount); i++) {
