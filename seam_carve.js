@@ -89,7 +89,12 @@ $(document).ready(function(){
 	});
 
 	$("#shorter").click(function(){
-		resizeImage(-5);
+		//resizeImage(-5);
+		path = [];
+		for (var i=0; i<imgHeight; i++){
+			path.push(i*imgWidth+i);
+		}
+		remove_row(path);
 	});
 
     $("#energy1").click(function() {
@@ -125,6 +130,27 @@ $(document).ready(function(){
 			}
 		}
 		imgWidth = newWidth;
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		context.putImageData(newImg,0,0);
+	};
+	
+	var remove_row = function(path){
+		var imgData = context.getImageData(0, 0, imgWidth, imgHeight); // single dimension array of RGBA
+		imgWidth -= 1;
+		var newImg = context.createImageData(imgWidth, imgHeight);
+		var path_index = 0;
+		var new_index = 0;
+		for (var i=0; i < imgData.data.length/4; i+=1){
+			if (path[path_index] === i){
+				path_index++;
+				continue;
+			}
+			newImg.data[4*new_index] = imgData.data[4*i];
+			newImg.data[4*new_index+1] = imgData.data[4*i+1];
+			newImg.data[4*new_index+2] = imgData.data[4*i+2];
+			newImg.data[4*new_index+3] = imgData.data[4*i+3];
+			new_index++;
+		}
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.putImageData(newImg,0,0);
 	};
