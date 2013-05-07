@@ -3,9 +3,12 @@
 <head>
 	<title> Seam Carving </title>
 	<link rel="stylesheet" href="style.css" />
-    <link href="bootstrap.min.css" rel="stylesheet" />
+    <link href="bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="slider/css/slider.css" rel="stylesheet" />
 	<script src="jquery-2.0.0.min.js"></script>
-    <script src="bootstrap.min.js"></script>
+    <script src="bootstrap/bootstrap.min.js"></script>
+    <script src="slider/js/bootstrap-slider.js"></script>
+    <script src="jquery.ba-throttle-debounce.min.js"></script>
     <script src="Filters.js"></script>
 	<script src="seam_carve.js"></script>
 </head>
@@ -13,12 +16,15 @@
 	
 	<h1> Seam Carving for CS283 </h1>
     <div class="row">
-      <button class="btn" type="button" id="wider-horiz"> Widen Horizontally </button>
-      <button class="btn" type="button" id="shorter-horiz"> Shorten Horizontally </button>
       <!--<button class="btn" type="button" id="energy1"> Show Energy1 </button>-->
+        <div>Width %</div>
+        <div id="width-slider" class="slider" data-slider-min="0" data-slider-step="1" style="width: 400px"></div>
+        <br/>
+        <div>Height %</div>
+        <div id="height-slider" class="slider" data-slider-min="0" data-slider-step="1" style="width: 400px"></div>
     </div>
     <div class="row">
-      <canvas id="myCanvas" width="640" height="480"> Canvas not supported </canvas>
+        <canvas id="myCanvas" width="640" height="480"> Canvas not supported </canvas>
     </div>
 	
 </body>
