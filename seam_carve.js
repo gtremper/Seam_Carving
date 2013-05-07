@@ -84,11 +84,11 @@ $(document).ready(function(){
         return output;
     };
 
-	$("#wider").click(function(){
+	$("#wider-horiz").click(function(){
 		resizeImage(5);
 	});
 
-	$("#shorter").click(function(){
+	$("#shorter-horiz").click(function(){
 		for (var i=0; i<5; i++){
 			var imgData = context.getImageData(0,0,imgWidth,imgHeight);
 			var path = Filters.get_path(imgData);
