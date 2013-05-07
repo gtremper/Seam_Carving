@@ -105,10 +105,17 @@ $(document).ready(function(){
             var imgData = context.getImageData(0,0,imgWidth,imgHeight);
             var path = Filters.get_path(imgData);
             $("#width-slider").slider('setValue',imgWidth);
-            remove_row(path);
+            remove_row(path, true);
         // keypad right
-        } else if (e.keyCode == 38) {
+        } else if (e.keyCode == 39) {
             resizeImage(1);
+        } else if (e.keyCode == 40) {
+            var imgData = context.getImageData(0,0,imgWidth,imgHeight);
+            var newimgData = Filters.to_columnmajor(imgData, context);
+            var path = Filters.get_path(newimgData);
+            $("#height-slider").slider('setValue',imgHeight);
+            remove_row(path, false);
+            imgData = Filters.to_rowmajor(newimgData, context);
         }
         return false;
     });
@@ -121,7 +128,7 @@ $(document).ready(function(){
 		for (var i=0; i<5; i++){
 			var imgData = context.getImageData(0,0,imgWidth,imgHeight);
 			var path = Filters.get_path(imgData);
-			remove_row(path);
+			remove_row(path, false);
 		}
 	});
 
@@ -162,10 +169,16 @@ $(document).ready(function(){
 		context.putImageData(newImg,0,0);
 	};
 	
-	var remove_row = function(path){
+	var remove_row = function(path, vertical){
 		var imgData = context.getImageData(0, 0, imgWidth, imgHeight); // single dimension array of RGBA
-		imgWidth -= 1;
-		var newImg = context.createImageData(imgWidth, imgHeight);
+        if (vertical) {
+          imgWidth -= 1;
+          var newImg = context.createImageData(imgWidth, imgHeight);
+        }
+        else {
+          imgHeight -= 1;
+          var newImg = context.createImageData(imgHeight, imgWidth);
+        }
 		var path_index = 0;
 		var new_index = 0;
 		for (var i=0; i < imgData.data.length/4; i+=1){
@@ -180,6 +193,9 @@ $(document).ready(function(){
 			new_index++;
 		}
 		context.clearRect(0, 0, canvas.width, canvas.height);
+        if (!vertical) {
+            var newImg = Filters.to_rowmajor(newImg, context);
+        }
 		context.putImageData(newImg,0,0);
 	};
 
