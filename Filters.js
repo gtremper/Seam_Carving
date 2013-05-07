@@ -103,7 +103,22 @@ Filters.color_energy1 = function(pixels) {
   }
   return output;
 };
+
+Filters.grayscale = function(pixels) {
+  var d = pixels.data;
+  for (var i=0; i<d.length; i+=4) {
+    var r = d[i];
+    var g = d[i+1];
+    var b = d[i+2];
+    var v = 0.2126*r + 0.7152*g + 0.0722*b;
+    d[i] = d[i+1] = d[i+2] = v
+  }
+  return pixels;
+};
+
 Filters.energy1 = function(pixels) {
+  // convert to greyscale
+  pixels = Filters.grayscale(pixels);
   var src = pixels.data;
   var sw = pixels.width;
   var sh = pixels.height;
