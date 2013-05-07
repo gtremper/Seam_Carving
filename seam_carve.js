@@ -89,13 +89,11 @@ $(document).ready(function(){
 	});
 
 	$("#shorter").click(function(){
-		var imgData = context.getImageData(0,0,imgWidth,imgHeight);
-		var path = Filters.get_path(imgData);
-		//console.log("Width: " + imgWidth);
-		//for (var i=0; i<path.length; i++){
-		//	console.log(path[i] - i*imgWidth);
-		//}
-		remove_row(path);
+		for (var i=0; i<5; i++){
+			var imgData = context.getImageData(0,0,imgWidth,imgHeight);
+			var path = Filters.get_path(imgData);
+			remove_row(path);
+		}
 	});
 
     $("#energy1").click(function() {

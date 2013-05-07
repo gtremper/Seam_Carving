@@ -136,13 +136,13 @@ Filters.get_path = function(pixels) {
 		var paths = [];
 		// compute the dynamic programming problem
 		for (var y=1; y<h; y++) { // skip the first row
-			M[y*w] = 999;
-			M[(y+1)*w-1] = 999;
+			M[y*w] = 9999999999999999;
+			M[(y+1)*w-1] = 9999999999999999;
 			for (var x=1; x<w-1; x++) {
 				var offset = (y*w+x);
 				var topleft = M[(y-1)*w+x-1];
 				var topmid = M[(y-1)*w+x];
-				var topright = x%w===w-1 ? 999 : M[(y-1)*w+x+1];
+				var topright = M[(y-1)*w+x+1];
 				var energy_to_add = 0;
 				if (topleft < topmid && topleft < topright) {
 						energy_to_add = topleft;
@@ -159,7 +159,7 @@ Filters.get_path = function(pixels) {
 		}
 
 		// find index of the smallest value in the last row of M
-		var minvalue = 999;
+		var minvalue = 9999999999999999999999;
 		var index = -1;
 		for (var i=M.length - w; i < M.length; i++) {
 				if (M[i] < minvalue) {
