@@ -124,13 +124,14 @@ Filters.energy1 = function(pixels) {
 Filters.get_path = function(pixels) {
     var energies = Filters.energy1(pixels);
     var w = pixels.width; // x
-    var h = pixels.h; // y
+    var h = pixels.height; // y
     var M = [];
+    for (var i=0; i<w; i++) M.push(0);
     var paths = [];
     // compute the dynamic programming problem
     for (var y=1; y<h; y++) { // skip the first row
       for (var x=0; x<w; x++) {
-        var offset = (y*w+x)*4;
+        var offset = (y*w+x);
         var topleft = M[(y-1)*w+x-1];
         var topmid = M[(y-1)*w+x];
         var topright = M[(y-1)*w+x+1];
@@ -164,5 +165,8 @@ Filters.get_path = function(pixels) {
        path.push( paths[index] );
        index = paths[index];
     }
+    // do this janky stuff for graham
+    path.reverse();
+    path.push(-1);
     return path;
 };
