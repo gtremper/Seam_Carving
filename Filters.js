@@ -1,32 +1,4 @@
 Filters = {};
-Filters.getPixels = function(img) {
-  var c = this.getCanvas(img.width, img.height);
-  var ctx = c.getContext('2d');
-  ctx.drawImage(img);
-  return ctx.getImageData(0,0,c.width,c.height);
-};
-
-Filters.getCanvas = function(w,h) {
-  var c = document.createElement('canvas');
-  c.width = w;
-  c.height = h;
-  return c;
-};
-
-Filters.filterImage = function(filter, image, var_args) {
-  var args = [this.getPixels(image)];
-  for (var i=2; i<arguments.length; i++) {
-    args.push(arguments[i]);
-  }
-  return filter.apply(null, args);
-};
-
-Filters.tmpCanvas = document.createElement('canvas');
-Filters.tmpCtx = Filters.tmpCanvas.getContext('2d');
-
-Filters.createImageData = function(w,h) {
-  return this.tmpCtx.createImageData(w,h);
-};
 
 Filters.convolute = function(pixels, weights, opaque) {
   var side = Math.round(Math.sqrt(weights.length));
@@ -119,16 +91,13 @@ Filters.grayscale = function(pixels) {
 Filters.greyscale = Filters.grayscale;
 
 Filters.energy1 = function(pixels) {
-  // convert to greyscale
-  pixels = Filters.grayscale(pixels);
   var src = pixels.data;
   var sw = pixels.width;
   var sh = pixels.height;
   // pad output by the convolution matrix
   var w = sw;
   var h = sh;
-  var output = Filters.createImageData(w, h);
-  var dst = output.data;
+  var output = [];
   // go through the destination image pixels
   for (var y=0; y<h; y++) {
     for (var x=0; x<w; x++) {
@@ -142,11 +111,11 @@ Filters.energy1 = function(pixels) {
           r = Math.abs(src[dstOff-4] - src[dstOff+4]);
           g = Math.abs(src[dstOff+1-4] - src[dstOff+1+4]);
           b = Math.abs(src[dstOff+2-4] - src[dstOff+2+4]);
+          var v = 0.2126*r + 0.7152*g + 0.0722*b;
+          output.push(v);      
+      } else {
+          output.push(0);
       }
-      dst[dstOff] = r;
-      dst[dstOff+1] = g;
-      dst[dstOff+2] = b;
-      dst[dstOff+3] = 255;
     }
   }
   return output;
