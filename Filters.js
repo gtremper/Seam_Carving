@@ -178,3 +178,39 @@ Filters.get_path = function(pixels) {
 		path.push(-1);
 		return path;
 };
+
+Filters.to_columnmajor = function(imgData, context) {
+    var array = imgData.data
+    var height = imgData.height;
+    var width = imgData.width;
+    var newarray = [];
+    var r = c = 0;
+    for (var i=0; i<array.length; i++) {
+        r = i % height;
+        c = Math.floor(i / height);
+        newarray[r*width+c] = array[i];
+    }
+    var newImg = context.createImageData(height,width);
+    newImg.data = newarray;
+    newImg.width = height;
+    newImg.height = width;
+    return newImg;
+};
+
+Filters.to_rowmajor = function(imgData, context) {
+    var array = imgData.data
+    var height = imgData.width;
+    var width = imgData.height;
+    var newarray = [];
+    var r = c = 0;
+    for (var i=0; i<array.length; i++) {
+        r = i % height;
+        c = Math.floor(i / height);
+        newarray[r*width+c] = array[i];
+    }
+    var newImg = context.createImageData(height,width);
+    newImg.data = newarray;
+    newImg.width = height;
+    newImg.height = width;
+    return newImg;
+};
