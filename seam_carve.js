@@ -7,6 +7,10 @@ $(document).ready(function(){
 	var hasText = true;
 	var imgWidth = -1;
 	var imgHeight = -1;
+    // use this filter for now. Maybe switch to Sobel later?
+    var grad_filter = [0, -1, 0,
+                      -1,  0, 1,
+                       0,  1, 0];
 	
 	var clearCanvas = function () {
 		if (hasText) {
@@ -75,6 +79,15 @@ $(document).ready(function(){
 	$("#shorter").click(function(){
 		resizeImage(-5);
 	});
+
+    $("#energy1").click(function() {
+        var imgData = context.getImageData(0,0,imgWidth,imgHeight);
+        var gradient = Filters.energy1(imgData);
+        console.log(gradient);
+        console.log(imgData);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.putImageData(gradient, 0, 0);
+    });
 	
 	var resizeImage = function(pixels){
 		var imgData = context.getImageData(0,0,imgWidth,imgHeight);
