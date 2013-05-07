@@ -72,6 +72,37 @@ Filters.convolute = function(pixels, weights, opaque) {
   return output;
 };
 
+Filters.color_energy1 = function(pixels) {
+  var src = pixels.data;
+  var sw = pixels.width;
+  var sh = pixels.height;
+  // pad output by the convolution matrix
+  var w = sw;
+  var h = sh;
+  var output = Filters.createImageData(w, h);
+  var dst = output.data;
+  // go through the destination image pixels
+  for (var y=0; y<h; y++) {
+    for (var x=0; x<w; x++) {
+      var sy = y;
+      var sx = x;
+      var dstOff = (y*w+x)*4;
+      // calculate the weighed sum of the source image pixels that
+      // fall under the convolution matrix
+      var r=0, g=0, b=0;
+      if (x%w >= 1 && x%w <= w-1) {
+          r = Math.abs(src[dstOff-4] - src[dstOff+4]);
+          g = Math.abs(src[dstOff+1-4] - src[dstOff+1+4]);
+          b = Math.abs(src[dstOff+2-4] - src[dstOff+2+4]);
+      }
+      dst[dstOff] = r;
+      dst[dstOff+1] = g;
+      dst[dstOff+2] = b;
+      dst[dstOff+3] = 255;
+    }
+  }
+  return output;
+};
 Filters.energy1 = function(pixels) {
   var src = pixels.data;
   var sw = pixels.width;
