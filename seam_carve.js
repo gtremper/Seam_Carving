@@ -89,10 +89,11 @@ $(document).ready(function(){
 	});
 
 	$("#shorter").click(function(){
-		//resizeImage(-5);
-		path = [];
-		for (var i=0; i<imgHeight; i++){
-			path.push(i*imgWidth+i);
+		var imgData = context.getImageData(0,0,imgWidth,imgHeight);
+		var path = Filters.get_path(imgData);
+		console.log("Width: " + imgWidth);
+		for (var i=0; i<path.length; i++){
+			console.log(path[i] - i*imgWidth);
 		}
 		remove_row(path);
 	});
@@ -141,7 +142,7 @@ $(document).ready(function(){
 		var path_index = 0;
 		var new_index = 0;
 		for (var i=0; i < imgData.data.length/4; i+=1){
-			if (path[path_index] === i){
+			if (path[path_index]+1 === i){
 				path_index++;
 				continue;
 			}
