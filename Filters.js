@@ -112,11 +112,39 @@ Filters.energy1 = function(pixels) {
           g = Math.abs(src[dstOff+1-4] - src[dstOff+1+4]);
           b = Math.abs(src[dstOff+2-4] - src[dstOff+2+4]);
           var v = 0.2126*r + 0.7152*g + 0.0722*b;
-          output.push(v);      
+          output.push(v);
       } else {
           output.push(0);
       }
     }
   }
   return output;
+};
+
+Filters.get_path = function(pixels) {
+    var energies = Filters.energy1(pixels);
+    var w = pixels.width; // x
+    var h = pixels.h; // y
+    var M = [];
+    var paths = [];
+    for (var y=0; y<h; y++) {
+      for (var x=0; x<w; x++) {
+        var offset = (y*w+x)*4;
+        var topleft = M[(y-1)*w+x-1];
+        var topmid = M[(y-1)*w+x];
+        var topright = M[(y-1)*w+x+1];
+        var energy_to_add = 0;
+        if (topleft < topmid && topleft < topright) {
+            energy_to_add = topleft;
+            paths[offset] = (y-1)*w+x-1;
+        } else if (topmid < topleft && topmid < topright) {
+            energy_to_add = topmid;
+            paths[offset] = (y-1)*w+x;
+        } else {
+            energy_to_add = topright;
+            paths[offset] = (y-1)*w+x+1;
+        }
+        M[offset] = energies[y*w+x] + energy_to_add;
+      }
+    }
 };
