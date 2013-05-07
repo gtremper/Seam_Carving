@@ -116,6 +116,8 @@ Filters.grayscale = function(pixels) {
   return pixels;
 };
 
+Filters.greyscale = Filters.grayscale;
+
 Filters.energy1 = function(pixels) {
   // convert to greyscale
   pixels = Filters.grayscale(pixels);
