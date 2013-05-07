@@ -3,17 +3,23 @@
 <head>
 	<title> Seam Carving </title>
 	<link rel="stylesheet" href="style.css" />
+    <link href="bootstrap.min.css" rel="stylesheet" />
 	<script src="jquery-2.0.0.min.js"></script>
     <script src="Filters.js"></script>
 	<script src="seam_carve.js"></script>
+    <script src="boostrap.min.js"></script>
 </head>
-<body>
+<body class="container">
 	
 	<h1> Seam Carving for CS283 </h1>
-	<canvas id="myCanvas" width="640" height="480"> Canvas not supported </canvas>
-	<button type="button" id="wider"> Widen </button>
-	<button type="button" id="shorter"> Shorten </button>
-	<button type="button" id="energy1"> Show Energy1 </button>
+    <div class="row">
+      <button class="btn" type="button" id="wider"> Widen </button>
+      <button class="btn" type="button" id="shorter"> Shorten </button>
+      <button class="btn" type="button" id="energy1"> Show Energy1 </button>
+    </div>
+    <div class="row">
+      <canvas id="myCanvas" width="640" height="480"> Canvas not supported </canvas>
+    </div>
 	
 </body>
 </html>
