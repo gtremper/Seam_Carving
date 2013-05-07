@@ -127,7 +127,8 @@ Filters.get_path = function(pixels) {
     var h = pixels.h; // y
     var M = [];
     var paths = [];
-    for (var y=0; y<h; y++) {
+    // compute the dynamic programming problem
+    for (var y=1; y<h; y++) { // skip the first row
       for (var x=0; x<w; x++) {
         var offset = (y*w+x)*4;
         var topleft = M[(y-1)*w+x-1];
@@ -147,4 +148,21 @@ Filters.get_path = function(pixels) {
         M[offset] = energies[y*w+x] + energy_to_add;
       }
     }
+
+    // find index of the smallest value in the last row of M
+    var minvalue = 999;
+    var index = -1;
+    for (var i=M.length - w; i < M.length; i++) {
+        if (M[i] < minvalue) {
+          index = i;
+          minvalue = M[i];
+        }
+    }
+
+    var path = [index];
+    for (var i=1; i<h; i++) { // do this h-1 times
+       path.push( paths[index] );
+       index = paths[index];
+    }
+    return path;
 };
