@@ -30,6 +30,8 @@ $(document).ready(function(){
 		canvas.width = img.width*1.5;
 		imgHeight = img.height;
 		imgWidth = img.width;
+        $("#width-slider").slider({max: img.width*1.5, value: img.width});
+        $("#height-slider").slider({max: img.height*1.5, value: img.height});
 		context.drawImage(img, 0, 0);
 	}, false);
 
@@ -83,6 +85,34 @@ $(document).ready(function(){
         context.putImageData(output,0,0);
         return output;
     };
+
+    $("#width-slider").on('slide', $.debounce(250, function(e){
+        console.log(e.value-imgWidth);
+        var amount = e.value-imgWidth;
+        if (amount < 0) {
+          for (var i=0; i<Math.abs(amount); i++) {
+              var imgData = context.getImageData(0,0,imgWidth,imgHeight);
+              var path = Filters.get_path(imgData);
+              remove_row(path);
+          }
+        } else {
+          resizeImage(Math.abs(amount));
+        }
+    }));
+
+    $(document).keydown(function(e){
+        // keypad left
+        if (e.keyCode == 37) {
+            var imgData = context.getImageData(0,0,imgWidth,imgHeight);
+            var path = Filters.get_path(imgData);
+            $("#width-slider").slider('setValue',imgWidth);
+            remove_row(path);
+        // keypad right
+        } else if (e.keyCode == 38) {
+            resizeImage(1);
+        }
+        return false;
+    });
 
 	$("#wider-horiz").click(function(){
 		resizeImage(5);
