@@ -92,7 +92,7 @@ $(document).ready(function(){
           for (var i=0; i<Math.abs(amount); i++) {
               var imgData = context.getImageData(0,0,imgWidth,imgHeight);
               var path = Filters.get_path(imgData);
-              remove_row(path);
+              remove_row(path, true);
           }
         } else {
           resizeImage(Math.abs(amount));
