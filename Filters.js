@@ -101,17 +101,17 @@ Filters.energy1 = function(src, w, h) {
 	}
 	// go through the destination image pixels
 	var r,g,b;
-	var row_length = w*4;
+	var row_length = w*3;
 	for (var y=1; y<h-1; y++) {
 		for (var x=0; x<w; x++) {
 			
-			var dstOff = (y*w+x)*4;
+			var dstOff = (y*w+x)*3;
 			r=0; g=0; b=0;
 			//Horizontal Gradient
 			if (x%w >= 1 && x%w < w-1) {
-					r += Math.abs(src[dstOff-4] - src[dstOff+4]);
-					g += Math.abs(src[dstOff+1-4] - src[dstOff+1+4]);
-					b += Math.abs(src[dstOff+2-4] - src[dstOff+2+4]);
+					r += Math.abs(src[dstOff-3] - src[dstOff+3]);
+					g += Math.abs(src[dstOff+1-3] - src[dstOff+1+3]);
+					b += Math.abs(src[dstOff+2-3] - src[dstOff+2+3]);
 			}
 			//Vertical Gradient
 			r += Math.abs(src[dstOff-row_length] - src[dstOff+row_length]);
@@ -199,9 +199,9 @@ Filters.get_paths = function(pixels) {
 	pixel_data = [];
 	
 	for(var derp=0; derp<pixels.data.length; derp++){
-		//if (derp%4 === 3){ // remove alphas
-		//	continue;
-		//}
+		if (derp%4 === 3){ // remove alphas
+			continue;
+		}
 		pixel_data.push(pixels.data[derp]);
 	}
 	
@@ -253,14 +253,14 @@ Filters.get_paths = function(pixels) {
 		var path = [];
 		for (var i=0; i<h; i++) { // do this h times
 			var row_index = index%w;
-			var r = pixel_data[index*4];
-			var g = pixel_data[index*4+1];
-			var b = pixel_data[index*4+2];
+			var r = pixel_data[index*3];
+			var g = pixel_data[index*3+1];
+			var b = pixel_data[index*3+2];
 			var pixel = new Pixel(row_index,r,g,b);
 			path.push( pixel );
 			
 			//Remove pixel from data
-			pixel_data.splice(index*4, 4);
+			pixel_data.splice(index*3, 3);
 			
 			index = paths[index];
 		}
