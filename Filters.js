@@ -251,6 +251,7 @@ Filters.get_paths = function(pixels) {
 		
 		// Build pixel path to store change to picture
 		var path = [];
+		
 		for (var i=0; i<h; i++) { // do this h times
 			var row_index = index%w;
 			var r = pixel_data[index*3];
@@ -260,7 +261,7 @@ Filters.get_paths = function(pixels) {
 			path.push( pixel );
 			
 			//Remove pixel from data
-			pixel_data.splice(index*3, 3);
+			//pixel_data.splice(index*3, 3);
 			
 			index = paths[index];
 		}
@@ -268,19 +269,18 @@ Filters.get_paths = function(pixels) {
 		path.reverse();
 		
 		//remove dead pixels
-		//var new_pixel_data = [];
-		//var path_index = 0;
-		//for (var pix=0; pix<pixel_data.length/4; pix++){
-		//	if (pix===path[path_index].index){
-		//		path_index = Math.min(path_index+1,path.length-1);
-		//		continue;
-		//	}
-		//	new_pixel_data.push(pixel_data[4*pix]);
-		//	new_pixel_data.push(pixel_data[4*pix+1]);
-		//	new_pixel_data.push(pixel_data[4*pix+2]);
-		//	new_pixel_data.push(255);
-		//}
-		//pixel_data = new_pixel_data;
+		var new_pixel_data = [];
+		var path_index = 0;
+		for (var pix=0; pix<pixel_data.length/3; pix++){
+			if (path[path_index].getIndex(w,path_index) === pix){
+				path_index = Math.min(path_index+1,path.length-1);
+				continue;
+			}
+			new_pixel_data.push(pixel_data[3*pix]);
+			new_pixel_data.push(pixel_data[3*pix+1]);
+			new_pixel_data.push(pixel_data[3*pix+2]);
+		}
+		pixel_data = new_pixel_data;
 		
 		list_of_paths.push(path);
 		w -= 1;
