@@ -110,11 +110,10 @@ $(document).ready(function(){
             //var path = Filters.get_path(imgData);
             //$("#width-slider").slider('setValue',imgWidth);
             //remove_row(path, true);
-			down_lod(5);
+			down_lod(4);
         // keypad right
         } else if (e.keyCode == 39) {
-            //resizeImage(1);
-			up_lod(5);
+			up_lod(4);
         } else if (e.keyCode == 40) {
             var imgData = context.getImageData(0,0,imgWidth,imgHeight);
             var newimgData = Filters.to_columnmajor(imgData, context);
@@ -146,35 +145,7 @@ $(document).ready(function(){
         context.putImageData(newimg, 0, 0);
     });
 
-	var resizeImage = function(pixels){
-		var imgData = context.getImageData(0,0,imgWidth,imgHeight); // single dimension array of RGBA
-		var newWidth = imgWidth+pixels;
-		var newImg = context.createImageData(newWidth,imgHeight);
-		var i = 0;
-		var extra=0;
-		for (var y=0; y<imgData.data.length/4; y++){
-			if (y%imgWidth < newWidth){
-				newImg.data[4*i] = imgData.data[4*y];
-				newImg.data[4*i+1] = imgData.data[4*y+1];
-				newImg.data[4*i+2] = imgData.data[4*y+2];
-				newImg.data[4*i+3] = imgData.data[4*y+3];
-				i+=1;
-				if (y%imgWidth === imgWidth-1){
-					for (extra=0; extra<pixels; extra++){
-						newImg.data[4*i] = 0;
-						newImg.data[4*i+1] = 0;
-						newImg.data[4*i+2] = 0;
-						newImg.data[4*i+3] = 255;
-						i+=1;
-					}
-				}
-			}
-		}
-		imgWidth = newWidth;
-		context.clearRect(0, 0, canvas.width, canvas.height);
-		context.putImageData(newImg,0,0);
-	};
-	
+
 	var remove_row = function(path, vertical){
 		var imgData = context.getImageData(0, 0, imgWidth, imgHeight); // single dimension array of RGBA
         if (vertical) {
@@ -187,8 +158,10 @@ $(document).ready(function(){
         }
 		var path_index = 0;
 		var new_index = 0;
+		var dirty_x = 0;
 		for (var i=0; i < imgData.data.length/4; i+=1){
 			if (path[path_index].getIndex(imgWidth+1,path_index) === i){
+				dirty_x = Math.min(dirty_x, path[path_index].index);
 				path_index++;
 				continue;
 			}
@@ -201,7 +174,7 @@ $(document).ready(function(){
         if (!vertical) {
             var newImg = Filters.to_rowmajor(newImg, context);
         }
-		context.putImageData(newImg,0,0);
+		context.putImageData(newImg,0,0,dirty_x,0,imgWidth-dirty_x, canvas.height);
 		context.clearRect(newImg.width, 0, 1, canvas.height);
 	};
 	
@@ -212,8 +185,10 @@ $(document).ready(function(){
 
 		var path_index = 0;
 		var new_index = 0;
+		var dirty_x = 0;
 		for (var i=0; i < imgData.data.length/4; i+=1){
 			if (path[path_index].getIndex(imgWidth-1,path_index) === i){
+				dirty_x = Math.min(dirty_x, path[path_index].index);
 				newImg.data[4*new_index] = path[path_index].r;
 				newImg.data[4*new_index+1] = path[path_index].g;
 				newImg.data[4*new_index+2] = path[path_index].b;
@@ -227,7 +202,7 @@ $(document).ready(function(){
 			newImg.data[4*new_index+3] = imgData.data[4*i+3];
 			new_index++;
 		}
-		context.putImageData(newImg,0,0);
+		context.putImageData(newImg,0,0,dirty_x,0,imgWidth-dirty_x, canvas.height);
 	};
 	
 	
