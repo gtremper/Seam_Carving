@@ -167,6 +167,8 @@ Filters.get_path = function(pixels) {
 					minvalue = M[i];
 				}
 		}
+		
+		console.log(w + ": " + minvalue);
 
 		var path = [index];
 		for (var i=1; i<h; i++) { // do this h-1 times
