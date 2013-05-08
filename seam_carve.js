@@ -7,10 +7,10 @@ $(document).ready(function(){
 	var hasText = true;
 	var imgWidth = -1;
 	var imgHeight = -1;
-    // use this filter for now. Maybe switch to Sobel later?
-    var grad_filter = [0, -1, 0,
-                      -1,  0, 1,
-                       0,  1, 0];
+	var lod = 0; //level of detail
+	
+	//array of seams to change lod
+	var cut_seams = [];
 
 	var clearCanvas = function () {
 		if (hasText) {
@@ -33,6 +33,10 @@ $(document).ready(function(){
         $("#width-slider").slider({max: img.width*1.5, value: img.width});
         $("#height-slider").slider({max: img.height*1.5, value: img.height});
 		context.drawImage(img, 0, 0);
+		
+		var imgData = context.getImageData(0,0,imgWidth,imgHeight);
+		cut_seams = Filters.get_paths(imgData);
+		
 	}, false);
 
 	// To enable drag and drop
@@ -77,10 +81,10 @@ $(document).ready(function(){
     var array_to_image = function(energies, width, height) {
         var output = context.createImageData(width, height);
         for (var i=0; i < energies.length; i++) {
-            output.data[i*4] = (energies[i]);
-            output.data[i*4+1] = (energies[i]);
-            output.data[i*4+2] = (energies[i]);
-            output.data[i*4+3] = (255);
+            output.data[i*4] = energies[i];
+            output.data[i*4+1] = energies[i];
+            output.data[i*4+2] = energies[i];
+            output.data[i*4+3] = 255;
         }
         context.putImageData(output,0,0);
         return output;
@@ -102,13 +106,15 @@ $(document).ready(function(){
     $(document).keydown(function(e){
         // keypad left
         if (e.keyCode == 37) {
-            var imgData = context.getImageData(0,0,imgWidth,imgHeight);
-            var path = Filters.get_path(imgData);
-            $("#width-slider").slider('setValue',imgWidth);
-            remove_row(path, true);
+            //var imgData = context.getImageData(0,0,imgWidth,imgHeight);
+            //var path = Filters.get_path(imgData);
+            //$("#width-slider").slider('setValue',imgWidth);
+            //remove_row(path, true);
+			down_lod(5);
         // keypad right
         } else if (e.keyCode == 39) {
-            resizeImage(1);
+            //resizeImage(1);
+			up_lod(5);
         } else if (e.keyCode == 40) {
             var imgData = context.getImageData(0,0,imgWidth,imgHeight);
             var newimgData = Filters.to_columnmajor(imgData, context);
@@ -182,7 +188,7 @@ $(document).ready(function(){
 		var path_index = 0;
 		var new_index = 0;
 		for (var i=0; i < imgData.data.length/4; i+=1){
-			if (path[path_index]+1 === i){
+			if (path[path_index].getIndex(imgWidth+1,path_index) === i){
 				path_index++;
 				continue;
 			}
@@ -197,6 +203,51 @@ $(document).ready(function(){
             var newImg = Filters.to_rowmajor(newImg, context);
         }
 		context.putImageData(newImg,0,0);
+	};
+	
+	var add_row = function(path){
+		var imgData = context.getImageData(0, 0, imgWidth, imgHeight); // single dimension array of RGBA
+		imgWidth += 1;
+		var newImg = context.createImageData(imgWidth, imgHeight);
+
+		var path_index = 0;
+		var new_index = 0;
+		for (var i=0; i < imgData.data.length/4; i+=1){
+			if (path[path_index].getIndex(imgWidth-1,path_index) === i){
+				newImg.data[4*new_index] = path[path_index].r;
+				newImg.data[4*new_index+1] = path[path_index].g;
+				newImg.data[4*new_index+2] = path[path_index].b;
+				newImg.data[4*new_index+3] = 255;
+				path_index++;
+				new_index++;
+			}
+			newImg.data[4*new_index] = imgData.data[4*i];
+			newImg.data[4*new_index+1] = imgData.data[4*i+1];
+			newImg.data[4*new_index+2] = imgData.data[4*i+2];
+			newImg.data[4*new_index+3] = imgData.data[4*i+3];
+			new_index++;
+		}
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		context.putImageData(newImg,0,0);
+	};
+	
+	
+	var down_lod = function(times) {
+		for (var i=0; i<times; i++){
+			if (lod>=cut_seams.length) break;
+			seam = cut_seams[lod];
+			lod++;
+			remove_row(seam,true);
+		}
+	};
+	
+	var up_lod = function(times) {
+		for (var i=0; i<times; i++){
+			if (lod < 0) break;
+			lod--;
+			seam = cut_seams[lod];
+			add_row(seam);
+		}
 	};
 
 });
