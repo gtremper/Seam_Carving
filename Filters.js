@@ -108,7 +108,7 @@ Filters.energy1 = function(src, w, h) {
 			var dstOff = (y*w+x)*4;
 			r=0; g=0; b=0;
 			//Horizontal Gradient
-			if (x%w >= 1 && x%w <= w-1) {
+			if (x%w >= 1 && x%w < w-1) {
 					r += Math.abs(src[dstOff-4] - src[dstOff+4]);
 					g += Math.abs(src[dstOff+1-4] - src[dstOff+1+4]);
 					b += Math.abs(src[dstOff+2-4] - src[dstOff+2+4]);
@@ -199,6 +199,9 @@ Filters.get_paths = function(pixels) {
 	pixel_data = [];
 	
 	for(var derp=0; derp<pixels.data.length; derp++){
+		//if (derp%4 === 3){ // remove alphas
+		//	continue;
+		//}
 		pixel_data.push(pixels.data[derp]);
 	}
 	
@@ -263,7 +266,22 @@ Filters.get_paths = function(pixels) {
 		}
 		// reverse so in correct order
 		path.reverse();
-		path.push(new Pixel(0,0,0,0));
+		
+		//remove dead pixels
+		//var new_pixel_data = [];
+		//var path_index = 0;
+		//for (var pix=0; pix<pixel_data.length/4; pix++){
+		//	if (pix===path[path_index].index){
+		//		path_index = Math.min(path_index+1,path.length-1);
+		//		continue;
+		//	}
+		//	new_pixel_data.push(pixel_data[4*pix]);
+		//	new_pixel_data.push(pixel_data[4*pix+1]);
+		//	new_pixel_data.push(pixel_data[4*pix+2]);
+		//	new_pixel_data.push(255);
+		//}
+		//pixel_data = new_pixel_data;
+		
 		list_of_paths.push(path);
 		w -= 1;
 	}

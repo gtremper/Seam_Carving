@@ -162,7 +162,7 @@ $(document).ready(function(){
 		for (var i=0; i < imgData.data.length/4; i+=1){
 			if (path[path_index].getIndex(imgWidth+1,path_index) === i){
 				dirty_x = Math.min(dirty_x, path[path_index].index);
-				path_index++;
+				path_index = Math.min(path_index+1,path.length-1);
 				continue;
 			}
 			newImg.data[4*new_index] = imgData.data[4*i];
@@ -193,7 +193,7 @@ $(document).ready(function(){
 				newImg.data[4*new_index+1] = path[path_index].g;
 				newImg.data[4*new_index+2] = path[path_index].b;
 				newImg.data[4*new_index+3] = 255;
-				path_index++;
+				path_index = Math.min(path_index+1,path.length-1);
 				new_index++;
 			}
 			newImg.data[4*new_index] = imgData.data[4*i];
