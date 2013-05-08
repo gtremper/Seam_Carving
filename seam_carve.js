@@ -198,11 +198,11 @@ $(document).ready(function(){
 			newImg.data[4*new_index+3] = imgData.data[4*i+3];
 			new_index++;
 		}
-		context.clearRect(0, 0, canvas.width, canvas.height);
         if (!vertical) {
             var newImg = Filters.to_rowmajor(newImg, context);
         }
 		context.putImageData(newImg,0,0);
+		context.clearRect(newImg.width, 0, 1, canvas.height);
 	};
 	
 	var add_row = function(path){
@@ -227,7 +227,6 @@ $(document).ready(function(){
 			newImg.data[4*new_index+3] = imgData.data[4*i+3];
 			new_index++;
 		}
-		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.putImageData(newImg,0,0);
 	};
 	

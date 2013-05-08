@@ -205,7 +205,7 @@ Filters.get_paths = function(pixels) {
 	var list_of_paths = [];
 	var half_cols = Math.floor(w/2);
 	
-	for (var row=0; row <= half_cols; row++) {
+	for (var row=0; row <= 10; row++) {
 		var M = [];
 		var energies = Filters.energy1(pixel_data,w,h);
 		for (var i=0; i<w; i++) M.push(0);
