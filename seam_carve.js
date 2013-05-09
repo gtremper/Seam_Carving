@@ -112,7 +112,7 @@ $(document).ready(function(){
         } else if (e.keyCode == 39) {
 			up_lod(4);
             $("#width-slider").slider('setValue',imgWidth);
-        } else if (e.keyCode == 40) {
+        } else if (e.keyCode == 38) {
             var imgData = context.getImageData(0,0,imgWidth,imgHeight);
             var newimgData = Filters.to_columnmajor(imgData, context);
             var path = Filters.get_path(newimgData);
