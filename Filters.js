@@ -100,29 +100,31 @@ Filters.energy1 = function(src, w, h) {
 		output.push(0);
 	}
 	// go through the destination image pixels
-	var r,g,b;
 	var row_length = w*3;
 	for (var y=1; y<h-1; y++) {
-		for (var x=0; x<w; x++) {
-			
+		//pad left columnt
+		output.push(0);
+		for (var x=1; x<w-1; x++) {
 			var dstOff = (y*w+x)*3;
-			r=0; g=0; b=0;
+			
 			//Horizontal Gradient
-			if (x%w >= 1 && x%w < w-1) {
-					r += Math.abs(src[dstOff-3] - src[dstOff+3]);
-					g += Math.abs(src[dstOff+1-3] - src[dstOff+1+3]);
-					b += Math.abs(src[dstOff+2-3] - src[dstOff+2+3]);
-			}
+			var r = Math.abs(src[dstOff-3] - src[dstOff+3]);
+			var g = Math.abs(src[dstOff+1-3] - src[dstOff+1+3]);
+			var b = Math.abs(src[dstOff+2-3] - src[dstOff+2+3]);
 			//Vertical Gradient
 			r += Math.abs(src[dstOff-row_length] - src[dstOff+row_length]);
 			g += Math.abs(src[dstOff+1-row_length] - src[dstOff+1+row_length]);
 			b += Math.abs(src[dstOff+2-row_length] - src[dstOff+2+row_length]);
+			
 			var v = 0.2126*r + 0.7152*g + 0.0722*b;
 			output.push(v);
 		}
-	}
-	for (var i=0; i<w; i++) {
+		//pad right column
 		output.push(0);
+	}
+	//pad Last Row. Random so edge pixel in path is random
+	for (var i=0; i<w; i++) {
+		output.push(Math.random());
 	}
 	return output;
 };
@@ -132,12 +134,12 @@ Filters.get_path = function(pixels) {
 		var w = pixels.width; // x
 		var h = pixels.height; // y
 		var M = [];
-		for (var i=0; i<w; i++) M.push(0);
+		for (var i=0; i<w; i++) M.push(Math.random());
 		var paths = [];
 		// compute the dynamic programming problem
-		for (var y=1; y<h; y++) { // skip the first row
-			M[y*w] = 9999999999999999;
-			M[(y+1)*w-1] = 9999999999999999;
+		for (var y=1; y<h-1; y++) { // skip the first row
+			M[y*w] = Number.MAX_VALUE;
+			M[(y+1)*w-1] = Number.MAX_VALUE;
 			for (var x=1; x<w-1; x++) {
 				var offset = (y*w+x);
 				var topleft = M[(y-1)*w+x-1];
@@ -159,7 +161,7 @@ Filters.get_path = function(pixels) {
 		}
 
 		// find index of the smallest value in the last row of M
-		var minvalue = 9999999999999999999999;
+		var minvalue = Number.MAX_VALUE;
 		var index = -1;
 		for (var i=M.length - w; i < M.length; i++) {
 				if (M[i] < minvalue) {
@@ -209,34 +211,32 @@ Filters.get_paths = function(pixels) {
 	for (var row=0; row <= half_cols; row++) {
 		var M = [];
 		var energies = Filters.energy1(pixel_data,w,h);
-		for (var i=0; i<w; i++) M.push(0);
+		for (var i=0; i<w; i++) M.push(Math.random());
 		var paths = [];
 		// compute the dynamic programming problem
 		for (var y=1; y<h; y++) { // skip the first row
-			M[y*w] = 9999999999999999;
-			M[(y+1)*w-1] = 9999999999999999;
+			M[y*w] = Number.MAX_VALUE;
+			M[(y+1)*w-1] = Number.MAX_VALUE;
 			for (var x=1; x<w-1; x++) {
-				var offset = (y*w+x);
-				var topleft = M[(y-1)*w+x-1];
-				var topmid = M[(y-1)*w+x];
-				var topright = M[(y-1)*w+x+1];
-				var energy_to_add = 0;
+				var offset = y*w+x;
+				var topleft = M[offset-w-1];
+				var topmid = M[offset-w];
+				var topright = M[offset-w+1];
 				if (topleft < topmid && topleft < topright) {
-						energy_to_add = topleft;
-						paths[offset] = (y-1)*w+x-1;
-				} else if (topmid < topleft && topmid < topright) {
-						energy_to_add = topmid;
-						paths[offset] = (y-1)*w+x;
+						M[offset] = energies[offset] + topleft;
+						paths[offset] = offset-w-1;
+				} else if (topmid < topright) {
+						M[offset] = energies[offset] + topmid;
+						paths[offset] = offset-w;
 				} else {
-						energy_to_add = topright;
-						paths[offset] = (y-1)*w+x+1;
+						M[offset] = energies[offset] + topright;
+						paths[offset] = offset-w+1;
 				}
-				M[offset] = energies[y*w+x] + energy_to_add;
 			}
 		}
 		
 		// find index of the smallest value in the last row of M
-		var minvalue = 9999999999999999999999;
+		var minvalue = Number.MAX_VALUE;
 		var index = -1;
 		for (var i=M.length - w; i < M.length; i++) {
 				if (M[i] < minvalue) {
