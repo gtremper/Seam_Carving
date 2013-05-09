@@ -168,8 +168,6 @@ Filters.get_path = function(pixels) {
 				}
 		}
 		
-		console.log(w + ": " + index%w);
-
 		var path = [index];
 		for (var i=1; i<h; i++) { // do this h-1 times
 			 path.push( paths[index] );
@@ -246,8 +244,6 @@ Filters.get_paths = function(pixels) {
 					minvalue = M[i];
 				}
 		}
-		
-		console.log(w + ": "+ index%w);
 		
 		// Build pixel path to store change to picture
 		var path = [];
