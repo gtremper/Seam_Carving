@@ -8,6 +8,7 @@ $(document).ready(function(){
 	var imgWidth = -1;
 	var imgHeight = -1;
 	var lod = 0; //level of detail
+	var seam_highlight = false;
 	
 	//array of seams to change lod
 	var cut_seams = [];
@@ -142,6 +143,10 @@ $(document).ready(function(){
         context.putImageData(newimg, 0, 0);
     });
 
+	$("#highlight").click(function(){
+		seam_highlight = !seam_highlight;
+	});
+
 
 	var remove_row = function(path){
 		var imgData = context.getImageData(0, 0, imgWidth, imgHeight); // single dimension array of RGBA
@@ -180,6 +185,10 @@ $(document).ready(function(){
 			if (path[path_index].getIndex(imgWidth-1,path_index) === i){
 				dirty_x = Math.min(dirty_x, path[path_index].index);
 				newImg.data[4*new_index] = path[path_index].r;
+				if (seam_highlight) {
+					newImg.data[4*new_index] += lod;
+					newImg.data[4*new_index] = Math.min(newImg.data[4*new_index],255);
+				}
 				newImg.data[4*new_index+1] = path[path_index].g;
 				newImg.data[4*new_index+2] = path[path_index].b;
 				newImg.data[4*new_index+3] = 255;
@@ -207,7 +216,7 @@ $(document).ready(function(){
 	
 	var up_lod = function(times) {
 		for (var i=0; i<times; i++){
-			if (lod < 0) break;
+			if (lod < 1) break;
 			lod--;
 			seam = cut_seams[lod];
 			add_row(seam);
