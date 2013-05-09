@@ -96,7 +96,7 @@ $(document).ready(function(){
           for (var i=0; i<Math.abs(amount); i++) {
               var imgData = context.getImageData(0,0,imgWidth,imgHeight);
               var path = Filters.get_path(imgData);
-              remove_row(path, true);
+              remove_row(path);
           }
         } else {
           resizeImage(Math.abs(amount));
@@ -106,11 +106,8 @@ $(document).ready(function(){
     $(document).keydown(function(e){
         // keypad left
         if (e.keyCode == 37) {
-            //var imgData = context.getImageData(0,0,imgWidth,imgHeight);
-            //var path = Filters.get_path(imgData);
-            //$("#width-slider").slider('setValue',imgWidth);
-            //remove_row(path, true);
 			down_lod(4);
+            $("#width-slider").slider('setValue',imgWidth);
         // keypad right
         } else if (e.keyCode == 39) {
 			up_lod(4);
@@ -119,7 +116,7 @@ $(document).ready(function(){
             var newimgData = Filters.to_columnmajor(imgData, context);
             var path = Filters.get_path(newimgData);
             $("#height-slider").slider('setValue',imgHeight);
-            remove_row(path, false);
+            remove_column(path); // TODO: change to remove_column
             imgData = Filters.to_rowmajor(newimgData, context);
         }
         return false;
@@ -133,7 +130,7 @@ $(document).ready(function(){
 		for (var i=0; i<5; i++){
 			var imgData = context.getImageData(0,0,imgWidth,imgHeight);
 			var path = Filters.get_path(imgData);
-			remove_row(path, false);
+			remove_row(path); // TODO: change to remove_column
 		}
 	});
 
@@ -176,7 +173,6 @@ $(document).ready(function(){
 		var imgData = context.getImageData(0, 0, imgWidth, imgHeight); // single dimension array of RGBA
 		imgWidth += 1;
 		var newImg = context.createImageData(imgWidth, imgHeight);
-
 		var path_index = 0;
 		var new_index = 0;
 		var dirty_x = 0;
@@ -217,5 +213,28 @@ $(document).ready(function(){
 			add_row(seam);
 		}
 	};
+
+    var remove_column = function(path) {
+		var imgData = context.getImageData(0, 0, imgHeight, imgWidth); // single dimension array of RGBA
+        imgHeight -=1;
+        var newImg = context.createImageData(imgWidth, imgHeight);
+        var path_index = 0;
+        var new_index = 0;
+        for (var i=0; i < imgData.data.length/4; i+=1) {
+            if (path[path_index]+1 === i){
+                path_index++;
+                continue;
+            }
+			newImg.data[4*new_index] = imgData.data[4*i];
+			newImg.data[4*new_index+1] = imgData.data[4*i+1];
+			newImg.data[4*new_index+2] = imgData.data[4*i+2];
+			newImg.data[4*new_index+3] = imgData.data[4*i+3];
+			new_index++;
+		}
+		context.clearRect(0, 0, canvas.width, canvas.height);
+        newImg = Filters.to_rowmajor(newImg, context);
+        console.log(newImg);
+		context.putImageData(newImg,0,0);
+    };
 
 });
