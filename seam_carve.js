@@ -146,19 +146,15 @@ $(document).ready(function(){
     });
 
 
-	var remove_row = function(path, vertical){
+	var remove_row = function(path){
 		var imgData = context.getImageData(0, 0, imgWidth, imgHeight); // single dimension array of RGBA
-        if (vertical) {
-          imgWidth -= 1;
-          var newImg = context.createImageData(imgWidth, imgHeight);
-        }
-        else {
-          imgHeight -= 1;
-          var newImg = context.createImageData(imgHeight, imgWidth);
-        }
+        imgWidth -= 1;
+        var newImg = context.createImageData(imgWidth, imgHeight);
+
 		var path_index = 0;
 		var new_index = 0;
 		var dirty_x = 0;
+		
 		for (var i=0; i < imgData.data.length/4; i+=1){
 			if (path[path_index].getIndex(imgWidth+1,path_index) === i){
 				dirty_x = Math.min(dirty_x, path[path_index].index);
@@ -171,9 +167,7 @@ $(document).ready(function(){
 			newImg.data[4*new_index+3] = imgData.data[4*i+3];
 			new_index++;
 		}
-        if (!vertical) {
-            var newImg = Filters.to_rowmajor(newImg, context);
-        }
+
 		context.putImageData(newImg,0,0,dirty_x,0,imgWidth-dirty_x, canvas.height);
 		context.clearRect(newImg.width, 0, 1, canvas.height);
 	};
@@ -211,7 +205,7 @@ $(document).ready(function(){
 			if (lod>=cut_seams.length) break;
 			seam = cut_seams[lod];
 			lod++;
-			remove_row(seam,true);
+			remove_row(seam);
 		}
 	};
 	
