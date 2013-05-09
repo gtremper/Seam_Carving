@@ -88,8 +88,6 @@ Filters.grayscale = function(pixels) {
 	return pixels;
 };
 
-Filters.greyscale = Filters.grayscale;
-
 Filters.energy1 = function(src, w, h) {
 	//var src = pixels.data;
 	//var w = pixels.width;
@@ -129,58 +127,6 @@ Filters.energy1 = function(src, w, h) {
 	return output;
 };
 
-Filters.get_path = function(pixels) {
-		var energies = Filters.energy1(pixels.data,pixels.width,pixels.height);
-		var w = pixels.width; // x
-		var h = pixels.height; // y
-		var M = [];
-		for (var i=0; i<w; i++) M.push(Math.random());
-		var paths = [];
-		// compute the dynamic programming problem
-		for (var y=1; y<h-1; y++) { // skip the first row
-			M[y*w] = Number.MAX_VALUE;
-			M[(y+1)*w-1] = Number.MAX_VALUE;
-			for (var x=1; x<w-1; x++) {
-				var offset = (y*w+x);
-				var topleft = M[(y-1)*w+x-1];
-				var topmid = M[(y-1)*w+x];
-				var topright = M[(y-1)*w+x+1];
-				var energy_to_add = 0;
-				if (topleft < topmid && topleft < topright) {
-						energy_to_add = topleft;
-						paths[offset] = (y-1)*w+x-1;
-				} else if (topmid < topleft && topmid < topright) {
-						energy_to_add = topmid;
-						paths[offset] = (y-1)*w+x;
-				} else {
-						energy_to_add = topright;
-						paths[offset] = (y-1)*w+x+1;
-				}
-				M[offset] = energies[y*w+x] + energy_to_add;
-			}
-		}
-
-		// find index of the smallest value in the last row of M
-		var minvalue = Number.MAX_VALUE;
-		var index = -1;
-		for (var i=M.length - w; i < M.length; i++) {
-				if (M[i] < minvalue) {
-					index = i;
-					minvalue = M[i];
-				}
-		}
-		
-		var path = [index];
-		for (var i=1; i<h; i++) { // do this h-1 times
-			 path.push( paths[index] );
-			 index = paths[index];
-		}
-		// do this janky stuff for graham
-		path.reverse();
-		path.push(-1);
-		return path;
-};
-
 function Pixel(index, r, g, b) {
 	this.index = index;
 	this.r = r;
@@ -196,8 +142,8 @@ function Pixel(index, r, g, b) {
 Filters.get_paths = function(pixels) {
 	var w = pixels.width; // x
 	var h = pixels.height; // y
-	pixel_data = [];
 	
+	pixel_data = [];
 	for(var derp=0; derp<pixels.data.length; derp++){
 		if (derp%4 === 3){ // remove alphas
 			continue;
@@ -208,11 +154,15 @@ Filters.get_paths = function(pixels) {
 	var list_of_paths = [];
 	var half_cols = Math.floor(w/2);
 	
+	//Iterate over number of curves removed
 	for (var row=0; row <= half_cols; row++) {
-		var M = [];
 		var energies = Filters.energy1(pixel_data,w,h);
-		for (var i=0; i<w; i++) M.push(Math.random());
+		var M = [];
 		var paths = [];
+		for (var i=0; i<w; i++){ 
+			M.push(Math.random());
+			paths.push(-1);
+		}
 		// compute the dynamic programming problem
 		for (var y=1; y<h; y++) { // skip the first row
 			M[y*w] = Number.MAX_VALUE;
@@ -234,47 +184,41 @@ Filters.get_paths = function(pixels) {
 				}
 			}
 		}
-		
 		// find index of the smallest value in the last row of M
 		var minvalue = Number.MAX_VALUE;
 		var index = -1;
 		for (var i=M.length - w; i < M.length; i++) {
-				if (M[i] < minvalue) {
-					index = i;
-					minvalue = M[i];
-				}
+			if (M[i] < minvalue) {
+				index = i;
+				minvalue = M[i];
+			}
 		}
 		
-		// Build pixel path to store change to picture
-		var path = [];
-		
-		for (var i=0; i<h; i++) { // do this h times
-			var row_index = index%w;
-			var r = pixel_data[index*3];
-			var g = pixel_data[index*3+1];
-			var b = pixel_data[index*3+2];
-			var pixel = new Pixel(row_index,r,g,b);
-			path.push( pixel );
-			
-			//Remove pixel from data
-			//pixel_data.splice(index*3, 3);
-			
+		// Get path of pixels(in reverse order) of min energy seam
+		var indicies = [];
+		while(index>=0){
+			indicies.push(index);
 			index = paths[index];
 		}
-		// reverse so in correct order
-		path.reverse();
+		indicies.reverse();
 		
-		//remove dead pixels
+		//Copy new data array with seam removed, and save seam the "path"
 		var new_pixel_data = [];
-		var path_index = 0;
+		var path = [];
+		var path_index=0;
 		for (var pix=0; pix<pixel_data.length/3; pix++){
-			if (path[path_index].getIndex(w,path_index) === pix){
-				path_index = Math.min(path_index+1,path.length-1);
-				continue;
+			if (indicies[path_index] === pix){
+				var pixel = new Pixel(pix%w, //row index
+								pixel_data[pix*3], //r
+								pixel_data[pix*3+1], //g
+								pixel_data[pix*3+2]); //b
+				path.push( pixel )
+				path_index = Math.min(path_index+1, h-1);
+			} else {
+				new_pixel_data.push(pixel_data[3*pix]);
+				new_pixel_data.push(pixel_data[3*pix+1]);
+				new_pixel_data.push(pixel_data[3*pix+2]);
 			}
-			new_pixel_data.push(pixel_data[3*pix]);
-			new_pixel_data.push(pixel_data[3*pix+1]);
-			new_pixel_data.push(pixel_data[3*pix+2]);
 		}
 		pixel_data = new_pixel_data;
 		
