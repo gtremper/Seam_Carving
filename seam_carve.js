@@ -119,6 +119,8 @@ $(document).ready(function(){
             remove_column(path); // TODO: change to remove_column
             imgData = Filters.to_rowmajor(newimgData, context);
         }
+        $("#width-slider").slider('setValue',imgWidth);
+        $("#height-slider").slider('setValue',imgHeight);
         return false;
     });
 
