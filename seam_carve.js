@@ -111,6 +111,7 @@ $(document).ready(function(){
         // keypad right
         } else if (e.keyCode == 39) {
 			up_lod(4);
+            $("#width-slider").slider('setValue',imgWidth);
         } else if (e.keyCode == 40) {
             var imgData = context.getImageData(0,0,imgWidth,imgHeight);
             var newimgData = Filters.to_columnmajor(imgData, context);
@@ -119,8 +120,6 @@ $(document).ready(function(){
             remove_column(path); // TODO: change to remove_column
             imgData = Filters.to_rowmajor(newimgData, context);
         }
-        $("#width-slider").slider('setValue',imgWidth);
-        $("#height-slider").slider('setValue',imgHeight);
         return false;
     });
 
