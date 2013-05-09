@@ -292,17 +292,17 @@ Filters.to_columnmajor = function(imgData, context) {
     var array = imgData.data
     var height = imgData.height;
     var width = imgData.width;
-    var newarray = [];
-    var r = c = 0;
-    for (var i=0; i<array.length; i++) {
+    var newImg = context.createImageData(height,width);
+    var r = c = base = 0;
+    for (var i=0; i<array.length/4; i++) {
         r = i % height;
         c = Math.floor(i / height);
-        newarray[r*width+c] = array[i];
+        base = ((r*width+c)*4 ) % array.length;
+        newImg.data[base] = array[i*4];
+        newImg.data[base+1] = array[i*4+1];
+        newImg.data[base+2] = array[i*4+2];
+        newImg.data[base+3] = array[i*4+3];
     }
-    var newImg = context.createImageData(height,width);
-    newImg.data = newarray;
-    newImg.width = height;
-    newImg.height = width;
     return newImg;
 };
 
@@ -310,16 +310,16 @@ Filters.to_rowmajor = function(imgData, context) {
     var array = imgData.data
     var height = imgData.width;
     var width = imgData.height;
-    var newarray = [];
-    var r = c = 0;
-    for (var i=0; i<array.length; i++) {
+    var newImg = context.createImageData(height,width);
+    var r = c = base = 0;
+    for (var i=0; i<array.length/4; i++) {
         r = i % height;
         c = Math.floor(i / height);
-        newarray[r*width+c] = array[i];
+        base = ((r*width+c)*4 ) % array.length;
+        newImg.data[base] = array[i*4];
+        newImg.data[base+1] = array[i*4+1];
+        newImg.data[base+2] = array[i*4+2];
+        newImg.data[base+3] = array[i*4+3];
     }
-    var newImg = context.createImageData(height,width);
-    newImg.data = newarray;
-    newImg.width = height;
-    newImg.height = width;
     return newImg;
 };
