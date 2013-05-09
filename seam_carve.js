@@ -185,6 +185,7 @@ $(document).ready(function(){
 			if (path[path_index].getIndex(imgWidth-1,path_index) === i){
 				dirty_x = Math.min(dirty_x, path[path_index].index);
 				newImg.data[4*new_index] = path[path_index].r;
+				//Highlight seams by order of removal
 				if (seam_highlight) {
 					newImg.data[4*new_index] += lod;
 					newImg.data[4*new_index] = Math.min(newImg.data[4*new_index],255);
