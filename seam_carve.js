@@ -114,9 +114,7 @@ $(document).ready(function(){
 			up_lod(1);
             $("#width-slider").slider('setValue',imgWidth);
         } else if (e.keyCode == 38) {
-            var imgData = context.getImageData(0,0,imgWidth,imgHeight);
-            var path = Filters.get_horiz_path(imgData);
-            remove_column(path);
+            down_horiz_lod(1);
             $("#height-slider").slider('setValue',imgHeight);
         }
         return false;
@@ -311,6 +309,24 @@ $(document).ready(function(){
 			add_row_fast(seam);
 		}
 	};
+
+    var down_horiz_lod = function(times) {
+        for (var i=0; i<times; i++) {
+            if (horiz_lod >= horiz_cut_seams.length) break;
+            seam = horiz_cut_seams[horiz_lod];
+            horiz_lod++;
+            remove_col_fast(seam);
+        }
+    };
+
+    var up_horiz_lod = function(times) {
+        for (var i=0; i<times; i++) {
+            if (horiz_lod < 1) break;
+            horiz_lod--;
+            seam = horiz_cut_seams[horiz_lod];
+            add_col_fast(seam);
+        }
+    };
 
 	var remove_column = function(path){
 		var imgData = context.getImageData(0, 0, imgWidth, imgHeight); // single dimension array of RGBA
