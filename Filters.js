@@ -263,3 +263,55 @@ Filters.to_rowmajor = function(imgData, context) {
     }
     return newImg;
 };
+
+Filters.get_path = function(pixels) {
+  var energies = Filters.energy1(pixels.data,pixels.width,pixels.height);
+  var w = pixels.width; // x
+  var h = pixels.height; // y
+  var M = [];
+  for (var i=0; i<w; i++) M.push(0);
+  var paths = [];
+  // compute the dynamic programming problem
+  for (var y=1; y<h; y++) { // skip the first row
+    M[y*w] = 9999999999999999;
+    M[(y+1)*w-1] = 9999999999999999;
+    for (var x=1; x<w-1; x++) {
+      var offset = (y*w+x);
+      var topleft = M[(y-1)*w+x-1];
+      var topmid = M[(y-1)*w+x];
+      var topright = M[(y-1)*w+x+1];
+      var energy_to_add = 0;
+      if (topleft < topmid && topleft < topright) {
+        energy_to_add = topleft;
+        paths[offset] = (y-1)*w+x-1;
+      } else if (topmid < topleft && topmid < topright) {
+        energy_to_add = topmid;
+        paths[offset] = (y-1)*w+x;
+      } else {
+        energy_to_add = topright;
+        paths[offset] = (y-1)*w+x+1;
+      }
+      M[offset] = energies[y*w+x] + energy_to_add;
+    }
+  }
+
+  // find index of the smallest value in the last row of M
+  var minvalue = 9999999999999999999999;
+  var index = -1;
+  for (var i=M.length - w; i < M.length; i++) {
+    if (M[i] < minvalue) {
+      index = i;
+      minvalue = M[i];
+    }
+  }
+
+  var path = [index];
+  for (var i=1; i<h; i++) { // do this h-1 times
+    path.push( paths[index] );
+    index = paths[index];
+  }
+  // do this janky stuff for graham
+  path.reverse();
+  path.push(-1);
+  return path;
+};
