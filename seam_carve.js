@@ -390,8 +390,6 @@ $(document).ready(function(){
                 }
             }
         }
-        console.log(newImg);
-
         // put new image data in right place
 		context.putImageData(newImg,0,min_y);
 
