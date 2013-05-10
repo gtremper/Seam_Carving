@@ -8,10 +8,12 @@ $(document).ready(function(){
 	var imgWidth = -1;
 	var imgHeight = -1;
 	var lod = 0; //level of detail
+    var horiz_lod = 0; //level of detail horizontal
 	var seam_highlight = false;
 
 	//array of seams to change lod
 	var cut_seams = [];
+    var horiz_cut_seams = [];
 
 	var clearCanvas = function () {
 		if (hasText) {
