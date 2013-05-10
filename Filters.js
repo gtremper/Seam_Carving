@@ -104,7 +104,7 @@ Filters.energy1 = function(src, w, h) {
 		output.push(0);
 		for (var x=1; x<w-1; x++) {
 			var dstOff = (y*w+x)*3;
-			
+
 			//Horizontal Gradient
 			var r = Math.abs(src[dstOff-3] - src[dstOff+3]);
 			var g = Math.abs(src[dstOff+1-3] - src[dstOff+1+3]);
@@ -113,7 +113,7 @@ Filters.energy1 = function(src, w, h) {
 			r += Math.abs(src[dstOff-row_length] - src[dstOff+row_length]);
 			g += Math.abs(src[dstOff+1-row_length] - src[dstOff+1+row_length]);
 			b += Math.abs(src[dstOff+2-row_length] - src[dstOff+2+row_length]);
-			
+
 			var v = 0.2126*r + 0.7152*g + 0.0722*b;
 			output.push(v);
 		}
@@ -142,7 +142,7 @@ function Pixel(index, r, g, b) {
 Filters.get_paths = function(pixels) {
 	var w = pixels.width; // x
 	var h = pixels.height; // y
-	
+
 	pixel_data = [];
 	for(var derp=0; derp<pixels.data.length; derp++){
 		if (derp%4 === 3){ // remove alphas
@@ -150,16 +150,16 @@ Filters.get_paths = function(pixels) {
 		}
 		pixel_data.push(pixels.data[derp]);
 	}
-	
+
 	var list_of_paths = [];
 	var half_cols = Math.floor(w/2);
-	
+
 	//Iterate over number of curves removed
 	for (var row=0; row <= half_cols; row++) {
 		var energies = Filters.energy1(pixel_data,w,h);
 		var M = [];
 		var paths = [];
-		for (var i=0; i<w; i++){ 
+		for (var i=0; i<w; i++){
 			M.push(Math.random());
 			paths.push(-1);
 		}
@@ -193,7 +193,7 @@ Filters.get_paths = function(pixels) {
 				minvalue = M[i];
 			}
 		}
-		
+
 		// Get path of pixels(in reverse order) of min energy seam
 		var indicies = [];
 		while(index>=0){
@@ -201,7 +201,7 @@ Filters.get_paths = function(pixels) {
 			index = paths[index];
 		}
 		indicies.reverse();
-		
+
 		//Copy new data array with seam removed, and save seam the "path"
 		var new_pixel_data = [];
 		var path = [];
@@ -221,7 +221,7 @@ Filters.get_paths = function(pixels) {
 			}
 		}
 		pixel_data = new_pixel_data;
-		
+
 		list_of_paths.push(path);
 		w -= 1;
 	}
