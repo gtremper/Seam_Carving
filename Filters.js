@@ -370,3 +370,97 @@ Filters.get_horiz_path = function(pixels) {
     path.push(-1);
     return path;
 }
+
+Filters.get_horiz_paths = function(pixels) {
+    var w = pixels.width; // x
+    var h = pixels.height; // y
+
+    pixel_data = [];
+    for (var i=0; i<pixels.data.length; i++) {
+      if (i%4 === 3) { // remove alphas
+        continue;
+      }
+      pixel_data.push(pixels.data[i]);
+    }
+
+    var list_of_paths = [];
+    var half_rows = Math.floor(h/2);
+
+    // Iterate over number of seams removed
+    for (var col=0; col <= half_rows; col++) {
+        var energies = Filters.energy1(pixel_data, w, h);
+        var M = [];
+        var paths = [];
+		for (var i=0; i<h; i++){
+            M[i*w] = Math.random();
+            paths.push(-1);
+		}
+
+        // compute the dynamic programming problem
+        for (var x=1; x<w; x++) { // skip first column
+            M[x-1] = Number.MAX_VALUE;
+            M[x-1+(h-1)*w] = Number.MAX_VALUE;
+            for (var y=1; y<h-1; y++) {
+                var lefttop = M[w*(y-1)+x-1];
+                var leftmid = M[w*y+x-1];
+                var leftbot = M[w*(y+1)+x-1]; // don't exceed array bounds
+                var energy_to_add = 0;
+                if (lefttop < leftmid && lefttop < leftbot) {
+                    energy_to_add = lefttop;
+                    paths[x+y*w] = w*(y-1)+x-1;
+                } else if (leftmid < lefttop && leftmid < leftbot) {
+                    energy_to_add = leftmid;
+                    paths[x+y*w] = w*y+x-1;
+                } else {
+                    energy_to_add = leftbot;
+                    paths[x+y*w] = w*(y+1)+x-1;
+                }
+                M[x+y*w] = energies[x+y*w] + energy_to_add;
+            }
+        }
+
+        // find index of smallest value in last col of M
+        var minvalue = Number.MAX_VALUE;
+        var index = -1;
+        for (var i=w-1; i< M.length; i+=w) {
+            if (M[i] < minvalue) {
+              index = i;
+              minvalue = M[i];
+            }
+        }
+
+        // Get path of pixels(in reverse order) of min energy seam
+        var indices = [];
+        while(index>=0){
+            indices.push(index);
+            index = paths[index];
+        }
+        indices.reverse();
+
+        // Copy new data array with seam removed
+        // TODO: double check this part
+        var new_pixel_data = [];
+        var path = [];
+        var path_index = 0;
+        for (var pix=0; pix<pixel_data.length/3; pix++) {
+            var pix_idx = (pix % h) * w + Math.floor(pix / h);
+            if (indices[path_index] === pix_idx) {
+                var pixel = new Pixel(pix%h, // col index
+                                      pixel_data[pix_idx*3], // r
+                                      pixel_data[pix_idx*3+1], // g
+                                      pixel_data[pix_idx*3+2]); // b
+                path.push( pixel );
+                path_index = Math.min(path_index+1, w-1);
+            } else {
+                new_pixel_data.push(pixel_data[3*pix_idx]);
+                new_pixel_data.push(pixel_data[3*pix_idx+1]);
+                new_pixel_data.push(pixel_data[3*pix_idx+2]);
+            }
+        }
+        pixel_data = new_pixel_data;
+
+        list_of_paths.push(path);
+        h -= 1;
+    }
+    return list_of_paths;
+};
