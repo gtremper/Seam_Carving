@@ -445,7 +445,7 @@ Filters.get_horiz_paths = function(pixels) {
         for (var pix=0; pix<pixel_data.length/3; pix++) {
             var pix_idx = (pix % h) * w + Math.floor(pix / h);
             if (indices[path_index] === pix_idx) {
-                var pixel = new Pixel(pix%h, // col index
+                var pixel = new Pixel(Math.floor(pix_idx / w), // col index
                                       pixel_data[pix_idx*3], // r
                                       pixel_data[pix_idx*3+1], // g
                                       pixel_data[pix_idx*3+2]); // b
