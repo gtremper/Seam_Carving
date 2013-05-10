@@ -110,11 +110,11 @@ $(document).ready(function(){
     $(document).keydown(function(e){
         // keypad left
         if (e.keyCode == 37) {
-			down_lod(1);
+			down_lod(4);
             $("#width-slider").slider('setValue',imgWidth);
         // keypad right
         } else if (e.keyCode == 39) {
-			up_lod(1);
+			up_lod(4);
             $("#width-slider").slider('setValue',imgWidth);
         } else if (e.keyCode == 38) {
             down_horiz_lod(1);
@@ -268,6 +268,11 @@ $(document).ready(function(){
 			for (var x=min_x; x<=max_x; x++){
 				if (path[y].index === x){
 					newImg.data[4*new_index] = path[y].r;
+					//Highlight seams by order of removal
+					if (seam_highlight) {
+						newImg.data[4*new_index] += lod;
+						newImg.data[4*new_index] = Math.min(newImg.data[4*new_index],255);
+					}
 					newImg.data[4*new_index+1] = path[y].g;
 					newImg.data[4*new_index+2] = path[y].b;
 					newImg.data[4*new_index+3] = 255;
@@ -298,8 +303,8 @@ $(document).ready(function(){
 			if (lod>=cut_seams.length) break;
 			seam = cut_seams[lod];
 			lod++;
-			//remove_row(seam);
-			remove_row_fast(seam);
+			remove_row(seam);
+			//remove_row_fast(seam);
 		}
 	};
 
@@ -308,8 +313,8 @@ $(document).ready(function(){
 			if (lod < 1) break;
 			lod--;
 			seam = cut_seams[lod];
-			//add_row(seam);
-			add_row_fast(seam);
+			add_row(seam);
+			//add_row_fast(seam);
 		}
 	};
 
