@@ -107,11 +107,11 @@ $(document).ready(function(){
     $(document).keydown(function(e){
         // keypad left
         if (e.keyCode == 37) {
-			down_lod(4);
+			down_lod(1);
             $("#width-slider").slider('setValue',imgWidth);
         // keypad right
         } else if (e.keyCode == 39) {
-			up_lod(4);
+			up_lod(1);
             $("#width-slider").slider('setValue',imgWidth);
         } else if (e.keyCode == 38) {
             var imgData = context.getImageData(0,0,imgWidth,imgHeight);
@@ -151,6 +151,7 @@ $(document).ready(function(){
 	var remove_row = function(path){
 		var imgData = context.getImageData(0, 0, imgWidth, imgHeight); // single dimension array of RGBA
         imgWidth -= 1;
+
         var newImg = context.createImageData(imgWidth, imgHeight);
 
 		var path_index = 0;
@@ -172,6 +173,48 @@ $(document).ready(function(){
 
 		context.putImageData(newImg,0,0,dirty_x,0,imgWidth-dirty_x, canvas.height);
 		context.clearRect(newImg.width, 0, 1, canvas.height);
+	};
+	
+	var remove_row_fast = function(path){
+		// Find min and max x values of seam
+		var min_x = Number.MAX_VALUE;
+		var max_x = Number.MIN_VALUE;
+		
+		for (var p=0; p<path.length; p++) {
+			min_x = Math.min(min_x, path[p].index);
+			max_x = Math.max(max_x, path[p].index);
+		}
+		// single dimension array of RGBA
+		var midImgData = context.getImageData(min_x, 0, max_x-min_x+1, imgHeight);
+		var newImg = context.createImageData(max_x-min_x, imgHeight);
+		
+		//Remove seam from middle part
+		var new_index=0;
+		var old_index = 0;
+		for (var y=0; y<imgHeight; y++){
+			for (var x=min_x; x<=max_x; x++){
+				if (path[y].index === x){
+					old_index++;
+					continue;
+				}
+				newImg.data[4*new_index] = midImgData.data[4*old_index];
+				newImg.data[4*new_index+1] = midImgData.data[4*old_index+1];
+				newImg.data[4*new_index+2] = midImgData.data[4*old_index+2];
+				newImg.data[4*new_index+3] = midImgData.data[4*old_index+3];
+				new_index++;
+				old_index++;
+			}
+		}
+
+        // put new image data in right place
+		context.putImageData(newImg,min_x,0);
+		
+		//shift clean data on right side of seam over 1 pixel
+		var rightImgData = context.getImageData(max_x+1, 0, imgWidth-max_x-1, imgHeight);
+		context.putImageData(rightImgData,max_x,0);
+
+		imgWidth -= 1;
+		context.clearRect(imgWidth, 0, 1, canvas.height);
 	};
 	
 	var add_row = function(path){
@@ -205,13 +248,58 @@ $(document).ready(function(){
 		context.putImageData(newImg,0,0,dirty_x,0,imgWidth-dirty_x, canvas.height);
 	};
 	
+	var add_row_fast = function(path){
+		// Find min and max x values of seam
+		var min_x = Number.MAX_VALUE;
+		var max_x = Number.MIN_VALUE;
+		
+		for (var p=0; p<path.length; p++) {
+			min_x = Math.min(min_x, path[p].index);
+			max_x = Math.max(max_x, path[p].index);
+		}
+		// single dimension array of RGBA
+		var midImgData = context.getImageData(min_x, 0, max_x-min_x+1, imgHeight);
+		var newImg = context.createImageData(max_x-min_x+2, imgHeight);
+		
+		//Remove seam from middle part
+		var new_index=0;
+		var old_index = 0;
+		for (var y=0; y<imgHeight; y++){
+			for (var x=min_x; x<=max_x; x++){
+				if (path[y].index === x){
+					newImg.data[4*new_index] = path[y].r;
+					newImg.data[4*new_index+1] = path[y].g;
+					newImg.data[4*new_index+2] = path[y].b;
+					newImg.data[4*new_index+3] = 255;
+					new_index++;
+				}
+				newImg.data[4*new_index] = midImgData.data[4*old_index];
+				newImg.data[4*new_index+1] = midImgData.data[4*old_index+1];
+				newImg.data[4*new_index+2] = midImgData.data[4*old_index+2];
+				newImg.data[4*new_index+3] = midImgData.data[4*old_index+3];
+				new_index++;
+				old_index++;
+			}
+		}
+		
+		//shift clean data on right side of seam over 1 pixel
+		var rightImgData = context.getImageData(max_x+1, 0, imgWidth-max_x-1, imgHeight);
+		context.putImageData(rightImgData,max_x+2,0);
+
+        // put new image data in right place
+		context.putImageData(newImg,min_x,0);
+
+		imgWidth += 1;
+	};
+	
 	
 	var down_lod = function(times) {
 		for (var i=0; i<times; i++){
 			if (lod>=cut_seams.length) break;
 			seam = cut_seams[lod];
 			lod++;
-			remove_row(seam);
+			//remove_row(seam);
+			remove_row_fast(seam);
 		}
 	};
 	
@@ -220,7 +308,8 @@ $(document).ready(function(){
 			if (lod < 1) break;
 			lod--;
 			seam = cut_seams[lod];
-			add_row(seam);
+			//add_row(seam);
+			add_row_fast(seam);
 		}
 	};
 
