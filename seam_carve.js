@@ -337,4 +337,51 @@ $(document).ready(function(){
 		context.putImageData(newImg,0,0);
 	};
 
+	var remove_col_fast = function(path){
+		// Find min and max y values of seam
+		var min_y = Number.MAX_VALUE;
+		var max_y = Number.MIN_VALUE;
+
+		for (var p=0; p<path.length; p++) {
+			min_y = Math.min(min_y, path[p].index);
+			max_y = Math.max(max_y, path[p].index);
+		}
+		// single dimension array of RGBA
+        var midImgData = context.getImageData(0, min_y, imgWidth, max_y-min_y+1);
+        var newImg = context.createImageData(imgWidth, max_y-min_y);
+
+		//Remove seam from middle part
+		var new_index = 0;
+        var old_index = 0;
+        var w = imgWidth;
+        for (var y=min_y; y<=max_y; y++) {
+            for (var x=0; x<imgWidth; x++) {
+                var offset = Math.min(4*((y-min_y)*w+x), newImg.data.length);
+                var nextoffset = Math.min(4*((y-min_y+1)*w+x), newImg.data.length);
+                if (path[x].index >= y) {
+                    newImg.data[offset]   = midImgData.data[nextoffset];
+                    newImg.data[offset+1] = midImgData.data[nextoffset+1];
+                    newImg.data[offset+2] = midImgData.data[nextoffset+2];
+                    newImg.data[offset+3] = midImgData.data[nextoffset+3];
+                } else {
+                    newImg.data[offset]   = midImgData.data[offset];
+                    newImg.data[offset+1] = midImgData.data[offset+1];
+                    newImg.data[offset+2] = midImgData.data[offset+2];
+                    newImg.data[offset+3] = midImgData.data[offset+3];
+                }
+            }
+        }
+        console.log(newImg);
+
+        // put new image data in right place
+		context.putImageData(newImg,0,min_y);
+
+		//shift clean data on bottom side of seam up 1 pixel
+        var bottomImgData = context.getImageData(0, max_y+1, imgWidth, imgHeight-max_y-1);
+        context.putImageData(bottomImgData, 0, max_y);
+
+		imgHeight -= 1;
+        context.clearRect(0, imgHeight, canvas.width, 1);
+	};
+
 });
