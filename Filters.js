@@ -315,3 +315,58 @@ Filters.get_path = function(pixels) {
   path.push(-1);
   return path;
 };
+
+Filters.get_horiz_path = function(pixels) {
+    var energies = Filters.energy1(pixels.data, pixels.width, pixels.height);
+    var w = pixels.width;
+    var h = pixels.height;
+    var M = [];
+    for (var i=0; i<h; i++) M[i*w] = 0;
+    var paths = [];
+    for (var x=1; x<w; x++) { // skip first column
+        M[x-1] = 99999999999999999999999999;
+        M[(x-1)+(h-1)*w] = 99999999999999999999999999999;
+        for (var y=1; y<h-1; y++) {
+            var lefttop = M[w*(y-1)+x-1];
+            var leftmid = M[w*y+x-1];
+            var leftbot = M[w*(y+1)+x-1]; // don't exceed array bounds
+            var energy_to_add = 0;
+            if (lefttop < leftmid && lefttop < leftbot) {
+                energy_to_add = lefttop;
+                paths[x+y*w] = w*(y-1)+x-1;
+            } else if (leftmid < lefttop && leftmid < leftbot) {
+                energy_to_add = leftmid;
+                paths[x+y*w] = w*y+x-1;
+            } else {
+                energy_to_add = leftbot;
+                paths[x+y*w] = w*(y+1)+x-1;
+            }
+            M[x+y*w] = energies[x+y*w] + energy_to_add;
+        }
+    }
+    console.log(M.length);
+    console.log(h*w);
+    console.log(M);
+    console.log(paths);
+
+    // find index of smallest value in last column of M
+    var minvalue = 9999999999999999999999999;
+    var index = -1;
+    for (var i=w-1; i< M.length; i+=w) {
+        if (M[i] < minvalue) {
+          index = i;
+          minvalue = M[i];
+        }
+    }
+    console.log(index);
+
+    var path = [index];
+    for (var i=1; i<w; i++) { // do this w-1 times
+        path.push( paths[index] );
+        index = paths[index];
+    }
+
+    path.reverse();
+    path.push(-1);
+    return path;
+}
