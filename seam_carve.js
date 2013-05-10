@@ -115,10 +115,9 @@ $(document).ready(function(){
             $("#width-slider").slider('setValue',imgWidth);
         } else if (e.keyCode == 38) {
             var imgData = context.getImageData(0,0,imgWidth,imgHeight);
-            var newimgData = Filters.to_columnmajor(imgData, context);
-            var path = Filters.get_path(newimgData);
+            var path = Filters.get_horiz_path(imgData);
+            remove_column(path);
             $("#height-slider").slider('setValue',imgHeight);
-            remove_column(path); // TODO: change to remove_column
         }
         return false;
     });
