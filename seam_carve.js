@@ -171,12 +171,12 @@ $(document).ready(function(){
 		context.putImageData(newImg,0,0,dirty_x,0,imgWidth-dirty_x, canvas.height);
 		context.clearRect(newImg.width, 0, 1, canvas.height);
 	};
-	
+
 	var remove_row_fast = function(path){
 		// Find min and max x values of seam
 		var min_x = Number.MAX_VALUE;
 		var max_x = Number.MIN_VALUE;
-		
+
 		for (var p=0; p<path.length; p++) {
 			min_x = Math.min(min_x, path[p].index);
 			max_x = Math.max(max_x, path[p].index);
@@ -184,7 +184,7 @@ $(document).ready(function(){
 		// single dimension array of RGBA
 		var midImgData = context.getImageData(min_x, 0, max_x-min_x+1, imgHeight);
 		var newImg = context.createImageData(max_x-min_x, imgHeight);
-		
+
 		//Remove seam from middle part
 		var new_index=0;
 		var old_index = 0;
@@ -205,7 +205,7 @@ $(document).ready(function(){
 
         // put new image data in right place
 		context.putImageData(newImg,min_x,0);
-		
+
 		//shift clean data on right side of seam over 1 pixel
 		var rightImgData = context.getImageData(max_x+1, 0, imgWidth-max_x-1, imgHeight);
 		context.putImageData(rightImgData,max_x,0);
@@ -213,7 +213,7 @@ $(document).ready(function(){
 		imgWidth -= 1;
 		context.clearRect(imgWidth, 0, 1, canvas.height);
 	};
-	
+
 	var add_row = function(path){
 		var imgData = context.getImageData(0, 0, imgWidth, imgHeight); // single dimension array of RGBA
 		imgWidth += 1;
@@ -244,12 +244,12 @@ $(document).ready(function(){
 		}
 		context.putImageData(newImg,0,0,dirty_x,0,imgWidth-dirty_x, canvas.height);
 	};
-	
+
 	var add_row_fast = function(path){
 		// Find min and max x values of seam
 		var min_x = Number.MAX_VALUE;
 		var max_x = Number.MIN_VALUE;
-		
+
 		for (var p=0; p<path.length; p++) {
 			min_x = Math.min(min_x, path[p].index);
 			max_x = Math.max(max_x, path[p].index);
@@ -257,7 +257,7 @@ $(document).ready(function(){
 		// single dimension array of RGBA
 		var midImgData = context.getImageData(min_x, 0, max_x-min_x+1, imgHeight);
 		var newImg = context.createImageData(max_x-min_x+2, imgHeight);
-		
+
 		//Remove seam from middle part
 		var new_index=0;
 		var old_index = 0;
@@ -278,7 +278,7 @@ $(document).ready(function(){
 				old_index++;
 			}
 		}
-		
+
 		//shift clean data on right side of seam over 1 pixel
 		var rightImgData = context.getImageData(max_x+1, 0, imgWidth-max_x-1, imgHeight);
 		context.putImageData(rightImgData,max_x+2,0);
@@ -288,8 +288,8 @@ $(document).ready(function(){
 
 		imgWidth += 1;
 	};
-	
-	
+
+
 	var down_lod = function(times) {
 		for (var i=0; i<times; i++){
 			if (lod>=cut_seams.length) break;
