@@ -313,28 +313,26 @@ $(document).ready(function(){
 	};
 
 	var remove_column = function(path){
-        console.log(path);
 		var imgData = context.getImageData(0, 0, imgWidth, imgHeight); // single dimension array of RGBA
         imgHeight -= 1;
-        var newImg = context.createImageData(imgHeight, imgWidth);
+        var newImg = context.createImageData(imgWidth, imgHeight);
 
 		var path_index = 0;
 		var new_index = 0;
-		
+
 		for (var i=0; i < imgData.data.length/4; i+=1){
+            var idx = (i%imgHeight)*imgWidth + Math.floor(i / imgHeight);
+            var newidx = (new_index%imgHeight)*imgWidth + Math.floor(new_index / imgHeight);
             if (path[path_index]+1 === i) {
-            console.log('hi');
 				path_index++;
 				continue;
 			}
-			newImg.data[4*new_index] = imgData.data[4*i];
-			newImg.data[4*new_index+1] = imgData.data[4*i+1];
-			newImg.data[4*new_index+2] = imgData.data[4*i+2];
-			newImg.data[4*new_index+3] = imgData.data[4*i+3];
+			newImg.data[4*newidx] = imgData.data[4*idx];
+			newImg.data[4*newidx+1] = imgData.data[4*idx+1];
+			newImg.data[4*newidx+2] = imgData.data[4*idx+2];
+			newImg.data[4*newidx+3] = imgData.data[4*idx+3];
 			new_index++;
 		}
-        newImg = Filters.to_rowmajor(newImg, context);
-        console.log(newImg);
         context.clearRect(0, 0, canvas.width, canvas.height);
 		context.putImageData(newImg,0,0);
 	};
