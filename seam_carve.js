@@ -39,6 +39,7 @@ $(document).ready(function(){
 
 		var imgData = context.getImageData(0,0,imgWidth,imgHeight);
 		cut_seams = Filters.get_paths(imgData);
+        //horiz_cut_seams = Filters.get_horiz_paths(imgData); // uncomment to do horizontal
 
 	}, false);
 
