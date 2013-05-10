@@ -9,7 +9,7 @@ $(document).ready(function(){
 	var imgHeight = -1;
 	var lod = 0; //level of detail
 	var seam_highlight = false;
-	
+
 	//array of seams to change lod
 	var cut_seams = [];
 
@@ -34,10 +34,10 @@ $(document).ready(function(){
         $("#width-slider").slider({max: img.width*1.5, value: img.width});
         $("#height-slider").slider({max: img.height*1.5, value: img.height});
 		context.drawImage(img, 0, 0);
-		
+
 		var imgData = context.getImageData(0,0,imgWidth,imgHeight);
 		cut_seams = Filters.get_paths(imgData);
-		
+
 	}, false);
 
 	// To enable drag and drop
@@ -156,7 +156,7 @@ $(document).ready(function(){
 		var path_index = 0;
 		var new_index = 0;
 		var dirty_x = 0;
-		
+
 		for (var i=0; i < imgData.data.length/4; i+=1){
 			if (path[path_index].getIndex(imgWidth+1,path_index) === i){
 				dirty_x = Math.min(dirty_x, path[path_index].index);
@@ -301,7 +301,7 @@ $(document).ready(function(){
 			remove_row_fast(seam);
 		}
 	};
-	
+
 	var up_lod = function(times) {
 		for (var i=0; i<times; i++){
 			if (lod < 1) break;
