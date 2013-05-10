@@ -119,6 +119,9 @@ $(document).ready(function(){
         } else if (e.keyCode == 38) {
             down_horiz_lod(1);
             $("#height-slider").slider('setValue',imgHeight);
+        } else if (e.keyCode == 40) {
+            up_horiz_lod(1);
+            $("#height-slider").slider('setValue',imgHeight);
         }
         return false;
     });
