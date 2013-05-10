@@ -288,7 +288,7 @@ $(document).ready(function(){
 		}
 
 		//shift clean data on right side of seam over 1 pixel
-		var rightImgData = context.getImageData(max_x+1, 0, imgWidth-max_x-1, imgHeight);
+		var rightImgData = context.getImageData(max_x+1, 0, imgWidth-max_x, imgHeight);
 		context.putImageData(rightImgData,max_x+2,0);
 
         // put new image data in right place
@@ -303,8 +303,8 @@ $(document).ready(function(){
 			if (lod>=cut_seams.length) break;
 			seam = cut_seams[lod];
 			lod++;
-			remove_row(seam);
-			//remove_row_fast(seam);
+			//remove_row(seam);
+			remove_row_fast(seam);
 		}
 	};
 
@@ -313,8 +313,8 @@ $(document).ready(function(){
 			if (lod < 1) break;
 			lod--;
 			seam = cut_seams[lod];
-			add_row(seam);
-			//add_row_fast(seam);
+			//add_row(seam);
+			add_row_fast(seam);
 		}
 	};
 
