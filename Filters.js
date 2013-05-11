@@ -96,8 +96,8 @@ function Pixel(index, r, g, b) {
 	};
 };
 
-Filters.add_extened_paths = function(paths){
-	return paths
+Filters.extend_paths = function(paths, imgData){
+	return paths;
 }
 
 
@@ -105,12 +105,14 @@ Filters.get_paths = function(pixels) {
 	var w = pixels.width; // x
 	var h = pixels.height; // y
 
-	pixel_data = [];
+	var pixel_data = [];
+	var original = [];
 	for(var derp=0; derp<pixels.data.length; derp++){
 		if (derp%4 === 3){ // remove alphas
 			continue;
 		}
 		pixel_data.push(pixels.data[derp]);
+		original.push(pixels.data[derp]);
 	}
 
 	var list_of_paths = [];
@@ -165,10 +167,9 @@ Filters.get_paths = function(pixels) {
 		indicies.reverse();
 
 		//Copy new data array with seam removed, and save seam the "path"
-		var new_pixel_data = [];
 		var path = [];
 		var path_index=0;
-		for (var pix=0; pix<pixel_data.length/3; pix++){
+		for (var pix=indicies[0]; pix<pixel_data.length/3; pix++){
 			if (indicies[path_index] === pix){
 				var pixel = new Pixel(pix%w, //row index
 								pixel_data[pix*3], //r
@@ -177,18 +178,18 @@ Filters.get_paths = function(pixels) {
 				path.push( pixel )
 				path_index = Math.min(path_index+1, h-1);
 			} else {
-				new_pixel_data.push(pixel_data[3*pix]);
-				new_pixel_data.push(pixel_data[3*pix+1]);
-				new_pixel_data.push(pixel_data[3*pix+2]);
+				pixel_data[3*(pix-path_index)] = pixel_data[3*pix];
+				pixel_data[3*(pix-path_index)+1] = pixel_data[3*pix+1];
+				pixel_data[3*(pix-path_index)+2] = pixel_data[3*pix+2];
 			}
 		}
-		pixel_data = new_pixel_data;
+		pixel_data.length -= 3*h;
 
 		list_of_paths.push(path);
 		w -= 1;
 	}
 	
-	list_of_paths = Filters.add_extened_paths(list_of_paths);
+	list_of_paths = Filters.extend_paths(list_of_paths, original);
 	
 	return list_of_paths;
 };
