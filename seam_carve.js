@@ -355,7 +355,8 @@ $(document).ready(function(){
             if (horiz_lod >= horiz_cut_seams.length) break;
             seam = horiz_cut_seams[horiz_lod];
             horiz_lod++;
-            remove_col_fast(seam);
+            remove_col(seam);
+            //remove_col_fast(seam);
         }
     };
 
