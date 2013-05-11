@@ -300,6 +300,35 @@ $(document).ready(function(){
 		imgWidth += 1;
 	};
 
+    var remove_col = function(path) {
+        var imgData = context.getImageData(0, 0, imgWidth, imgHeight);
+        var oldHeight = imgHeight;
+        imgHeight -= 1;
+        var newImg = context.createImageData(imgWidth, imgHeight);
+
+        var path_index = 0;
+        var new_index = 0;
+
+        for (var x=0; x < imgData.width; x+=1) {
+            for (var y=0; y < imgData.height; y+=1) {
+                if (path[x].index <= y) { // if path pixel is at or above where we are now
+                    newImg.data[4*(y*imgWidth+x)]   = imgData.data[4*((y+1)*imgWidth+x)];
+                    newImg.data[4*(y*imgWidth+x)+1] = imgData.data[4*((y+1)*imgWidth+x)+1];
+                    newImg.data[4*(y*imgWidth+x)+2] = imgData.data[4*((y+1)*imgWidth+x)+2];
+                    newImg.data[4*(y*imgWidth+x)+3] = imgData.data[4*((y+1)*imgWidth+x)+3];
+                } else {
+                    newImg.data[4*(y*imgWidth+x)]   = imgData.data[4*(y*imgWidth+x)];
+                    newImg.data[4*(y*imgWidth+x)+1] = imgData.data[4*(y*imgWidth+x)+1];
+                    newImg.data[4*(y*imgWidth+x)+2] = imgData.data[4*(y*imgWidth+x)+2];
+                    newImg.data[4*(y*imgWidth+x)+3] = imgData.data[4*(y*imgWidth+x)+3];
+                }
+            }
+        }
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.putImageData(newImg, 0, 0);
+
+    };
 
 	var down_lod = function(times) {
 		for (var i=0; i<times; i++){
