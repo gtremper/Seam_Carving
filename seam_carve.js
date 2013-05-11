@@ -310,7 +310,7 @@ $(document).ready(function(){
 
 	var up_lod = function(times) {
 		for (var i=0; i<times; i++){
-			if (lod < 1) break;
+			if (lod <= -(cut_seams.length-1)) break;
 			lod--;
 			seam = cut_seams[lod];
 			//add_row(seam);

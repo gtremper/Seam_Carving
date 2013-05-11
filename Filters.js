@@ -96,9 +96,34 @@ function Pixel(index, r, g, b) {
 	};
 };
 
-Filters.extend_paths = function(paths, imgData){
+// Add extra paths(seams) to increase image beyond original size
+Filters.extend_paths = function(paths, pixels) {
+	var w = pixels.width;
+	var h = pixels.height;
+	console.log("starting extra paths");
+	for (var i=0; i<paths.length; i++) {
+		console.log(i);
+		var new_path = [];
+		for (var row=0; row<h; row++){
+			var index = paths[i][row].index;
+			//update index to account for previous seams removed
+			for (var p=i-1; p>=0; p--) {
+				if (index >= paths[p][row]) {
+					index++;
+				}
+			}
+			var offset = row*w + index;
+			var red = (pixels.data[4*offset] + pixels.data[4*offset+4]) / 2;
+			var green = (pixels.data[4*offset+1] + pixels.data[4*offset+1+4]) / 2;
+			var blue = (pixels.data[4*offset+2] + pixels.data[4*offset+2+4]) / 2;
+			new_path[row] = new Pixel(index, red, green, blue);
+		}
+		// Jenkily set new seams to negative indices in paths
+		paths[-i] = new_path;
+	}
+	
 	return paths;
-}
+};
 
 
 Filters.get_paths = function(pixels) {
@@ -106,13 +131,11 @@ Filters.get_paths = function(pixels) {
 	var h = pixels.height; // y
 
 	var pixel_data = [];
-	var original = [];
 	for(var derp=0; derp<pixels.data.length; derp++){
 		if (derp%4 === 3){ // remove alphas
 			continue;
 		}
 		pixel_data.push(pixels.data[derp]);
-		original.push(pixels.data[derp]);
 	}
 
 	var list_of_paths = [];
@@ -189,7 +212,7 @@ Filters.get_paths = function(pixels) {
 		w -= 1;
 	}
 	
-	list_of_paths = Filters.extend_paths(list_of_paths, original);
+	list_of_paths = Filters.extend_paths(list_of_paths, pixels);
 	
 	return list_of_paths;
 };
