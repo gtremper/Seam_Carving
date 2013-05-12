@@ -111,11 +111,11 @@ $(document).ready(function(){
     $(document).keydown(function(e){
         // keypad left
         if (e.keyCode == 37) {
-			down_lod(5);
+			down_lod(4);
             $("#width-slider").slider('setValue',imgWidth);
         // keypad right
         } else if (e.keyCode == 39) {
-			up_lod(5);
+			up_lod(4);
             $("#width-slider").slider('setValue',imgWidth);
         } else if (e.keyCode == 38) {
             down_horiz_lod(1);
