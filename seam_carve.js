@@ -1,8 +1,11 @@
 $(document).ready(function(){
 
 	var canvas = document.getElementById("myCanvas");
+    var horizcanvas = document.getElementById("myHorizCanvas");
 	var context = canvas.getContext("2d");
+    var horizcontext = horizcanvas.getContext("2d");
 	var img = document.createElement("img");
+    var horizimg = document.createElement("img");
 	var mouseDown = false;
 	var hasText = true;
 	var imgWidth = -1;
@@ -33,8 +36,7 @@ $(document).ready(function(){
 		canvas.width = img.width*1.25;
 		imgHeight = img.height;
 		imgWidth = img.width;
-        $("#width-slider").slider({max: img.width*1.5, value: img.width});
-        $("#height-slider").slider({max: img.height*1.5, value: img.height});
+        $("#width-slider").slider({max: img.width*1.25, value: img.width});
 		context.drawImage(img, 0, 0);
 
 		var imgData = context.getImageData(0,0,imgWidth,imgHeight);
@@ -44,10 +46,44 @@ $(document).ready(function(){
 
 	}, false);
 
+    horizimg.addEventListener("load", function () {
+		canvas.height = horizimg.height;
+		canvas.width = horizimg.width*1.25;
+		horizImgHeight = horizimg.height;
+		horizImgWidth = horizimg.width;
+        $("#height-slider").slider({max: horizimg.height*1.5, value: horizimg.height});
+		horizcontext.drawImage(horizimg, 0, 0);
+
+		var horizImgData = horizcontext.getImageData(0,0,horizImgWidth,horizImgHeight);
+		horiz_lod = 0;
+        horiz_cut_seams = Filters.get_horiz_paths(imgData); // uncomment to do horizontal
+
+    }, false);
+
 	// To enable drag and drop
 	canvas.addEventListener("dragover", function (evt) {
 		evt.preventDefault();
 	}, false);
+
+    horizcanvas.addEventListener("dragover", function (e) {
+        e.preventDefault();
+    }, false);
+
+    horizcanvas.addEventListener('drop', function (e) {
+		var files = e.dataTransfer.files;
+		if (files.length > 0) {
+			var file = files[0];
+			if (typeof FileReader !== "undefined" && file.type.indexOf("image") != -1) {
+				var reader = new FileReader();
+				// Note: addEventListener doesn't work in Google Chrome for this event
+				reader.onload = function (e) {
+					horizimg.src = e.target.result;
+				};
+				reader.readAsDataURL(file);
+			}
+		}
+		e.preventDefault();
+    }, false);
 
 	// Handle dropped image file - only Firefox and Google Chrome
 	canvas.addEventListener("drop", function (evt) {
@@ -95,18 +131,17 @@ $(document).ready(function(){
         return output;
     };
 
-    $("#width-slider").on('slide', $.debounce(250, function(e){
+    $("#width-slider").on('slide', function(e) {
         var amount = e.value-imgWidth;
-        if (amount < 0) {
-          for (var i=0; i<Math.abs(amount); i++) {
-              var imgData = context.getImageData(0,0,imgWidth,imgHeight);
-              var path = Filters.get_path(imgData);
-              remove_row(path);
-          }
-        } else {
-          resizeImage(Math.abs(amount));
-        }
-    }));
+        if (amount < 0) down_lod(Math.abs(amount));
+        else up_lod(amount);
+    });
+
+    $("#height-slider").on('slide', function(e) {
+        var amount = e.value-imgHeight;
+        if (amount < 0) horiz_down_lod(Math.abs(amount));
+        else horiz_up_lod(amount);
+    });
 
     $(document).keydown(function(e){
         // keypad left
@@ -118,26 +153,14 @@ $(document).ready(function(){
 			up_lod(4);
             $("#width-slider").slider('setValue',imgWidth);
         } else if (e.keyCode == 38) {
-            down_horiz_lod(1);
-            $("#height-slider").slider('setValue',imgHeight);
+            down_horiz_lod(4);
+            $("#height-slider").slider('setValue',horizImgHeight);
         } else if (e.keyCode == 40) {
-            up_horiz_lod(1);
-            $("#height-slider").slider('setValue',imgHeight);
+            up_horiz_lod(4);
+            $("#height-slider").slider('setValue',horizImgHeight);
         }
         return false;
     });
-
-	$("#wider-horiz").click(function(){
-		resizeImage(5);
-	});
-
-	$("#shorter-horiz").click(function(){
-		for (var i=0; i<5; i++){
-			var imgData = context.getImageData(0,0,imgWidth,imgHeight);
-			var path = Filters.get_path(imgData);
-			remove_row(path); // TODO: change to remove_column
-		}
-	});
 
     $("#energy1").click(function() {
         var imgData = context.getImageData(0,0,imgWidth,imgHeight);
