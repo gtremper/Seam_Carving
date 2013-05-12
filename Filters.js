@@ -100,23 +100,17 @@ function Pixel(index, r, g, b) {
 Filters.extend_paths = function(paths, pixels) {
 	var w = pixels.width;
 	var h = pixels.height;
-	//console.log("starting extra paths");
 	for (var i=0; i<paths.length/2; i++) {
-		//console.log(i);
 		var new_path = [];
 		for (var row=0; row<h; row++){
-			var index = paths[i][row].index + i;
+			var index = paths[i][row].index;
 			//update index to account for previous seams removed
 			for (var p=0; p<i; p++) {
 				if (index >= paths[p][row]) {
 					index+=2;
 				}
 			}
-			var offset = row*w + index;
-			var red = (pixels.data[4*offset] + pixels.data[4*offset+4]) / 2;
-			var green = (pixels.data[4*offset+1] + pixels.data[4*offset+1+4]) / 2;
-			var blue = (pixels.data[4*offset+2] + pixels.data[4*offset+2+4]) / 2;
-			new_path[row] = new Pixel(index, red, green, blue);
+			new_path[row] = new Pixel(index, -1, -1, -1);
 		}
 		// Jenkily set new seams to negative indices in paths
 		paths[-i] = new_path;

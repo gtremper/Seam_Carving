@@ -111,17 +111,14 @@ $(document).ready(function(){
     $(document).keydown(function(e){
         // keypad left
         if (e.keyCode == 37) {
-			down_lod(4);
+			down_lod(5);
             $("#width-slider").slider('setValue',imgWidth);
         // keypad right
         } else if (e.keyCode == 39) {
-			up_lod(4);
+			up_lod(5);
             $("#width-slider").slider('setValue',imgWidth);
         } else if (e.keyCode == 38) {
             down_horiz_lod(1);
-            $("#height-slider").slider('setValue',imgHeight);
-        } else if (e.keyCode == 40) {
-            up_horiz_lod(1);
             $("#height-slider").slider('setValue',imgHeight);
         }
         return false;
@@ -261,6 +258,7 @@ $(document).ready(function(){
 			min_x = Math.min(min_x, path[p].index);
 			max_x = Math.max(max_x, path[p].index);
 		}
+		min_x--;
 		// single dimension array of RGBA
 		var midImgData = context.getImageData(min_x, 0, max_x-min_x+1, imgHeight);
 		var newImg = context.createImageData(max_x-min_x+2, imgHeight);
@@ -271,8 +269,8 @@ $(document).ready(function(){
 		for (var y=0; y<imgHeight; y++){
 			for (var x=min_x; x<=max_x; x++){
 				if (path[y].index === x){
-					if (lod<0) {
-						var offset = Math.max(0,4*(old_index-1));
+					if (lod<1) {
+						var offset = 4*(old_index-1);
 						var red = midImgData.data[offset] + midImgData.data[4*old_index];
 						red /= 2;
 						var green = midImgData.data[offset+1] + midImgData.data[4*old_index+1];
@@ -301,7 +299,6 @@ $(document).ready(function(){
 			}
 		}
 
-		//shift clean data on right side of seam over 1 pixel
 		var rightImgData = context.getImageData(max_x+1, 0, imgWidth-max_x, imgHeight);
 		context.putImageData(rightImgData,max_x+2,0);
 
@@ -311,67 +308,6 @@ $(document).ready(function(){
 		imgWidth += 1;
 	};
 
-    var remove_col = function(path) {
-        var imgData = context.getImageData(0, 0, imgWidth, imgHeight);
-        var oldHeight = imgHeight;
-        imgHeight -= 1;
-        var newImg = context.createImageData(imgWidth, imgHeight);
-
-        var path_index = 0;
-        var new_index = 0;
-
-        for (var x=0; x < imgData.width; x+=1) {
-            for (var y=0; y < imgData.height; y+=1) {
-                if (path[x].index <= y) { // if path pixel is at or above where we are now
-                    newImg.data[4*(y*imgWidth+x)]   = imgData.data[4*((y+1)*imgWidth+x)];
-                    newImg.data[4*(y*imgWidth+x)+1] = imgData.data[4*((y+1)*imgWidth+x)+1];
-                    newImg.data[4*(y*imgWidth+x)+2] = imgData.data[4*((y+1)*imgWidth+x)+2];
-                    newImg.data[4*(y*imgWidth+x)+3] = imgData.data[4*((y+1)*imgWidth+x)+3];
-                } else {
-                    newImg.data[4*(y*imgWidth+x)]   = imgData.data[4*(y*imgWidth+x)];
-                    newImg.data[4*(y*imgWidth+x)+1] = imgData.data[4*(y*imgWidth+x)+1];
-                    newImg.data[4*(y*imgWidth+x)+2] = imgData.data[4*(y*imgWidth+x)+2];
-                    newImg.data[4*(y*imgWidth+x)+3] = imgData.data[4*(y*imgWidth+x)+3];
-                }
-            }
-        }
-
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.putImageData(newImg, 0, 0);
-
-    };
-
-    var add_col = function(path) {
-        var imgData = context.getImageData(0, 0, imgWidth, imgHeight);
-        imgHeight += 1;
-        var newImg = context.createImageData(imgWidth, imgHeight);
-        var originaly = 0;
-        var newy = 0;
-
-        for (var x=0; x < imgWidth; x+=1) {
-            originaly = 0;
-            newy = 0;
-            for (var y=0; y < imgHeight; y+=1) {
-                if (path[x].index === newy) { // if path pixel is at where we are
-                    newImg.data[4*(newy*imgWidth+x)]   = path[x].r;
-                    newImg.data[4*(newy*imgWidth+x)+1] = path[x].g;
-                    newImg.data[4*(newy*imgWidth+x)+2] = path[x].b;
-                    newImg.data[4*(newy*imgWidth+x)+3] = 255;
-                    newy += 1;
-                }
-                newImg.data[4*(newy*imgWidth+x)]   = imgData.data[4*(originaly*imgWidth+x)];
-                newImg.data[4*(newy*imgWidth+x)+1] = imgData.data[4*(originaly*imgWidth+x)+1];
-                newImg.data[4*(newy*imgWidth+x)+2] = imgData.data[4*(originaly*imgWidth+x)+2];
-                newImg.data[4*(newy*imgWidth+x)+3] = imgData.data[4*(originaly*imgWidth+x)+3];
-                newy += 1;
-                originaly += 1;
-            }
-        }
-
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.putImageData(newImg, 0, 0);
-
-    };
 
 	var down_lod = function(times) {
 		for (var i=0; i<times; i++){
@@ -398,8 +334,7 @@ $(document).ready(function(){
             if (horiz_lod >= horiz_cut_seams.length) break;
             seam = horiz_cut_seams[horiz_lod];
             horiz_lod++;
-            remove_col(seam);
-            //remove_col_fast(seam);
+            remove_col_fast(seam);
         }
     };
 
@@ -408,9 +343,34 @@ $(document).ready(function(){
             if (horiz_lod < 1) break;
             horiz_lod--;
             seam = horiz_cut_seams[horiz_lod];
-            add_col(seam);
+            add_col_fast(seam);
         }
     };
+
+	var remove_column = function(path){
+		var imgData = context.getImageData(0, 0, imgWidth, imgHeight); // single dimension array of RGBA
+        imgHeight -= 1;
+        var newImg = context.createImageData(imgWidth, imgHeight);
+
+		var path_index = 0;
+		var new_index = 0;
+
+		for (var i=0; i < imgData.data.length/4; i+=1){
+            var idx = (i%imgHeight)*imgWidth + Math.floor(i / imgHeight);
+            var newidx = (new_index%imgHeight)*imgWidth + Math.floor(new_index / imgHeight);
+            if (path[path_index]+1 === i) {
+				path_index++;
+				continue;
+			}
+			newImg.data[4*newidx] = imgData.data[4*idx];
+			newImg.data[4*newidx+1] = imgData.data[4*idx+1];
+			newImg.data[4*newidx+2] = imgData.data[4*idx+2];
+			newImg.data[4*newidx+3] = imgData.data[4*idx+3];
+			new_index++;
+		}
+        context.clearRect(0, 0, canvas.width, canvas.height);
+		context.putImageData(newImg,0,0);
+	};
 
 	var remove_col_fast = function(path){
 		// Find min and max y values of seam
@@ -454,51 +414,6 @@ $(document).ready(function(){
         context.putImageData(bottomImgData, 0, max_y);
 
 		imgHeight -= 1;
-        context.clearRect(0, imgHeight, canvas.width, 1);
-	};
-
-	var add_col_fast = function(path){
-		// Find min and max y values of seam
-		var min_y = Number.MAX_VALUE;
-		var max_y = Number.MIN_VALUE;
-
-		for (var p=0; p<path.length; p++) {
-			min_y = Math.min(min_y, path[p].index);
-			max_y = Math.max(max_y, path[p].index);
-		}
-		// single dimension array of RGBA
-        var midImgData = context.getImageData(0, min_y, imgWidth, max_y-min_y+1);
-        var newImg = context.createImageData(imgWidth, max_y-min_y);
-
-		//Remove seam from middle part
-		var new_index = 0;
-        var old_index = 0;
-        var w = imgWidth;
-        for (var y=min_y; y<=max_y; y++) {
-            for (var x=0; x<imgWidth; x++) {
-                var offset = Math.min(4*((y-min_y)*w+x), newImg.data.length-1);
-                var nextoffset = Math.min(4*((y-min_y+1)*w+x), newImg.data.length-1);
-                if (path[x].index === y) {
-                    newImg.data[offset]   = path[x].r;
-                    newImg.data[offset+1] = path[x].g;
-                    newImg.data[offset+2] = path[x].b;
-                    newImg.data[offset+3] = 255;
-                } else {
-                    newImg.data[offset]   = midImgData.data[offset];
-                    newImg.data[offset+1] = midImgData.data[offset+1];
-                    newImg.data[offset+2] = midImgData.data[offset+2];
-                    newImg.data[offset+3] = midImgData.data[offset+3];
-                }
-            }
-        }
-        // put new image data in right place
-		context.putImageData(newImg,0,min_y);
-
-		//shift clean data on bottom side of seam up 1 pixel
-        var bottomImgData = context.getImageData(0, max_y+1, imgWidth, imgHeight-max_y-1);
-        context.putImageData(bottomImgData, 0, max_y+2);
-
-		imgHeight += 1;
         context.clearRect(0, imgHeight, canvas.width, 1);
 	};
 
