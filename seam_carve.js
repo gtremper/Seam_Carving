@@ -47,8 +47,9 @@ $(document).ready(function(){
 	}, false);
 
     horizimg.addEventListener("load", function () {
-		canvas.height = horizimg.height;
-		canvas.width = horizimg.width*1.25;
+        horizcontext.clearRect(0, 0, horizcanvas.width, horizcanvas.height);
+		horizcanvas.height = horizimg.height;
+		horizcanvas.width = horizimg.width*1.25;
 		horizImgHeight = horizimg.height;
 		horizImgWidth = horizimg.width;
         $("#height-slider").slider({max: horizimg.height*1.5, value: horizimg.height});
@@ -56,7 +57,7 @@ $(document).ready(function(){
 
 		var horizImgData = horizcontext.getImageData(0,0,horizImgWidth,horizImgHeight);
 		horiz_lod = 0;
-        horiz_cut_seams = Filters.get_horiz_paths(imgData); // uncomment to do horizontal
+        horiz_cut_seams = Filters.get_horiz_paths(horizImgData); // uncomment to do horizontal
 
     }, false);
 
@@ -138,9 +139,9 @@ $(document).ready(function(){
     });
 
     $("#height-slider").on('slide', function(e) {
-        var amount = e.value-imgHeight;
-        if (amount < 0) horiz_down_lod(Math.abs(amount));
-        else horiz_up_lod(amount);
+        var amount = e.value-horizImgHeight;
+        if (amount < 0) down_horiz_lod(Math.abs(amount));
+        else up_horiz_lod(amount);
     });
 
     $(document).keydown(function(e){
@@ -335,10 +336,9 @@ $(document).ready(function(){
 	};
 
     var remove_col = function(path) {
-        var imgData = context.getImageData(0, 0, imgWidth, imgHeight);
-        var oldHeight = imgHeight;
-        imgHeight -= 1;
-        var newImg = context.createImageData(imgWidth, imgHeight);
+        var imgData = horizcontext.getImageData(0, 0, horizImgWidth, horizImgHeight);
+        horizImgHeight -= 1;
+        var newImg = horizcontext.createImageData(horizImgWidth, horizImgHeight);
 
         var path_index = 0;
         var new_index = 0;
@@ -346,21 +346,21 @@ $(document).ready(function(){
         for (var x=0; x < imgData.width; x+=1) {
             for (var y=0; y < imgData.height; y+=1) {
                 if (path[x].index <= y) { // if path pixel is at or above where we are now
-                    newImg.data[4*(y*imgWidth+x)]   = imgData.data[4*((y+1)*imgWidth+x)];
-                    newImg.data[4*(y*imgWidth+x)+1] = imgData.data[4*((y+1)*imgWidth+x)+1];
-                    newImg.data[4*(y*imgWidth+x)+2] = imgData.data[4*((y+1)*imgWidth+x)+2];
-                    newImg.data[4*(y*imgWidth+x)+3] = imgData.data[4*((y+1)*imgWidth+x)+3];
+                    newImg.data[4*(y*horizImgWidth+x)]   = imgData.data[4*((y+1)*horizImgWidth+x)];
+                    newImg.data[4*(y*horizImgWidth+x)+1] = imgData.data[4*((y+1)*horizImgWidth+x)+1];
+                    newImg.data[4*(y*horizImgWidth+x)+2] = imgData.data[4*((y+1)*horizImgWidth+x)+2];
+                    newImg.data[4*(y*horizImgWidth+x)+3] = imgData.data[4*((y+1)*horizImgWidth+x)+3];
                 } else {
-                    newImg.data[4*(y*imgWidth+x)]   = imgData.data[4*(y*imgWidth+x)];
-                    newImg.data[4*(y*imgWidth+x)+1] = imgData.data[4*(y*imgWidth+x)+1];
-                    newImg.data[4*(y*imgWidth+x)+2] = imgData.data[4*(y*imgWidth+x)+2];
-                    newImg.data[4*(y*imgWidth+x)+3] = imgData.data[4*(y*imgWidth+x)+3];
+                    newImg.data[4*(y*horizImgWidth+x)]   = imgData.data[4*(y*horizImgWidth+x)];
+                    newImg.data[4*(y*horizImgWidth+x)+1] = imgData.data[4*(y*horizImgWidth+x)+1];
+                    newImg.data[4*(y*horizImgWidth+x)+2] = imgData.data[4*(y*horizImgWidth+x)+2];
+                    newImg.data[4*(y*horizImgWidth+x)+3] = imgData.data[4*(y*horizImgWidth+x)+3];
                 }
             }
         }
 
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.putImageData(newImg, 0, 0);
+        horizcontext.clearRect(0, 0, horizcanvas.width, horizcanvas.height);
+        horizcontext.putImageData(newImg, 0, 0);
 
     };
 
