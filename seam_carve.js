@@ -30,7 +30,7 @@ $(document).ready(function(){
 	img.addEventListener("load", function () {
 		clearCanvas();
 		canvas.height = img.height;
-		canvas.width = img.width*1.5;
+		canvas.width = img.width*1.25;
 		imgHeight = img.height;
 		imgWidth = img.width;
         $("#width-slider").slider({max: img.width*1.5, value: img.width});
@@ -39,6 +39,7 @@ $(document).ready(function(){
 
 		var imgData = context.getImageData(0,0,imgWidth,imgHeight);
 		cut_seams = Filters.get_paths(imgData);
+		lod = 0;
         //horiz_cut_seams = Filters.get_horiz_paths(imgData); // uncomment to do horizontal
 
 	}, false);
@@ -270,15 +271,25 @@ $(document).ready(function(){
 		for (var y=0; y<imgHeight; y++){
 			for (var x=min_x; x<=max_x; x++){
 				if (path[y].index === x){
-					newImg.data[4*new_index] = path[y].r;
-					//Highlight seams by order of removal
-					if (seam_highlight) {
-						newImg.data[4*new_index] += lod;
-						newImg.data[4*new_index] = Math.min(newImg.data[4*new_index],255);
+					if (lod<0) {
+						var offset = Math.max(0,4*(old_index-1));
+						var red = midImgData.data[offset] + midImgData.data[4*old_index];
+						red /= 2;
+						var green = midImgData.data[offset+1] + midImgData.data[4*old_index+1];
+						green /= 2;
+						var blue = midImgData.data[offset+2] + midImgData.data[4*old_index+2];
+						blue /= 2;
+						
+						newImg.data[4*new_index] = red;
+						newImg.data[4*new_index+1] = green;
+						newImg.data[4*new_index+2] = blue;
+						newImg.data[4*new_index+3] = 255;
+					} else {
+						newImg.data[4*new_index] = path[y].r;
+						newImg.data[4*new_index+1] = path[y].g;
+						newImg.data[4*new_index+2] = path[y].b;
+						newImg.data[4*new_index+3] = 255;
 					}
-					newImg.data[4*new_index+1] = path[y].g;
-					newImg.data[4*new_index+2] = path[y].b;
-					newImg.data[4*new_index+3] = 255;
 					new_index++;
 				}
 				newImg.data[4*new_index] = midImgData.data[4*old_index];
@@ -374,7 +385,7 @@ $(document).ready(function(){
 
 	var up_lod = function(times) {
 		for (var i=0; i<times; i++){
-			if (lod <= -(cut_seams.length-1)) break;
+			if (lod <= -(cut_seams.length/2-1)) break;
 			lod--;
 			seam = cut_seams[lod];
 			//add_row(seam);

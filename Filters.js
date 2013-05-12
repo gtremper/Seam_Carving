@@ -100,16 +100,16 @@ function Pixel(index, r, g, b) {
 Filters.extend_paths = function(paths, pixels) {
 	var w = pixels.width;
 	var h = pixels.height;
-	console.log("starting extra paths");
-	for (var i=0; i<paths.length; i++) {
-		console.log(i);
+	//console.log("starting extra paths");
+	for (var i=0; i<paths.length/2; i++) {
+		//console.log(i);
 		var new_path = [];
 		for (var row=0; row<h; row++){
-			var index = paths[i][row].index;
+			var index = paths[i][row].index + i;
 			//update index to account for previous seams removed
-			for (var p=i-1; p>=0; p--) {
+			for (var p=0; p<i; p++) {
 				if (index >= paths[p][row]) {
-					index++;
+					index+=2;
 				}
 			}
 			var offset = row*w + index;
@@ -124,6 +124,7 @@ Filters.extend_paths = function(paths, pixels) {
 	
 	return paths;
 };
+
 
 
 Filters.get_paths = function(pixels) {
