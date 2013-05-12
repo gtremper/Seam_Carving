@@ -151,18 +151,25 @@ $(document).ready(function(){
         if (e.keyCode == 37) {
 			down_lod(4);
             $("#width-slider").slider('setValue',imgWidth);
+            e.preventDefault();
+            return false;
         // keypad right
         } else if (e.keyCode == 39) {
 			up_lod(4);
             $("#width-slider").slider('setValue',imgWidth);
+            e.preventDefault();
+            return false;
         } else if (e.keyCode == 38) {
             down_horiz_lod(4);
             $("#height-slider").slider('setValue',horizImgHeight);
+            e.preventDefault();
+            return false;
         } else if (e.keyCode == 40) {
             up_horiz_lod(4);
             $("#height-slider").slider('setValue',horizImgHeight);
+            e.preventDefault();
+            return false;
         }
-        return false;
     });
 
     $("#energy1").click(function() {
