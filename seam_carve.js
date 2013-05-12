@@ -36,6 +36,7 @@ $(document).ready(function(){
 		canvas.width = img.width*1.25;
 		imgHeight = img.height;
 		imgWidth = img.width;
+        $("#width-slider").removeData();
         $("#width-slider").slider({max: img.width*1.25, value: img.width});
 		context.drawImage(img, 0, 0);
 
@@ -52,6 +53,7 @@ $(document).ready(function(){
 		horizcanvas.width = horizimg.width;
 		horizImgHeight = horizimg.height;
 		horizImgWidth = horizimg.width;
+        $("#height-slider").removeData();
         $("#height-slider").slider({max: horizimg.height*1.25, value: horizimg.height});
 		horizcontext.drawImage(horizimg, 0, 0);
 
