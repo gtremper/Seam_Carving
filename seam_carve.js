@@ -397,7 +397,7 @@ $(document).ready(function(){
             if (horiz_lod < 1) break;
             horiz_lod--;
             seam = horiz_cut_seams[horiz_lod];
-            add_col_fast(seam);
+            add_col(seam);
         }
     };
 
