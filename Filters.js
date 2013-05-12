@@ -427,7 +427,6 @@ Filters.get_horiz_paths = function(pixels) {
         indices.reverse();
 
         // Copy new data array with seam removed
-        // TODO: double check this part
         var new_pixel_data = [];
         var path = [];
         var path_index = 0;
@@ -440,7 +439,7 @@ Filters.get_horiz_paths = function(pixels) {
                                       pixel_data[pix_idx*3+2]); // b
                 path.push( pixel );
                 path_index = Math.min(path_index+1, w-1);
-            } else {
+            } else { // TODO: this is probably wrong
                 new_pixel_data.push(pixel_data[3*pix_idx]);
                 new_pixel_data.push(pixel_data[3*pix_idx+1]);
                 new_pixel_data.push(pixel_data[3*pix_idx+2]);
