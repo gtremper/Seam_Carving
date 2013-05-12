@@ -48,11 +48,11 @@ $(document).ready(function(){
 
     horizimg.addEventListener("load", function () {
         horizcontext.clearRect(0, 0, horizcanvas.width, horizcanvas.height);
-		horizcanvas.height = horizimg.height;
-		horizcanvas.width = horizimg.width*1.25;
+		horizcanvas.height = horizimg.height*1.25;
+		horizcanvas.width = horizimg.width;
 		horizImgHeight = horizimg.height;
 		horizImgWidth = horizimg.width;
-        $("#height-slider").slider({max: horizimg.height*1.5, value: horizimg.height});
+        $("#height-slider").slider({max: horizimg.height*1.25, value: horizimg.height});
 		horizcontext.drawImage(horizimg, 0, 0);
 
 		var horizImgData = horizcontext.getImageData(0,0,horizImgWidth,horizImgHeight);
@@ -365,34 +365,34 @@ $(document).ready(function(){
     };
 
     var add_col = function(path) {
-        var imgData = context.getImageData(0, 0, imgWidth, imgHeight);
-        imgHeight += 1;
-        var newImg = context.createImageData(imgWidth, imgHeight);
+        var imgData = horizcontext.getImageData(0, 0, horizImgWidth, horizImgHeight);
+        horizImgHeight += 1;
+        var newImg = horizcontext.createImageData(horizImgWidth, horizImgHeight);
         var originaly = 0;
         var newy = 0;
 
-        for (var x=0; x < imgWidth; x+=1) {
+        for (var x=0; x < horizImgWidth; x+=1) {
             originaly = 0;
             newy = 0;
-            for (var y=0; y < imgHeight; y+=1) {
+            for (var y=0; y < horizImgHeight; y+=1) {
                 if (path[x].index === newy) { // if path pixel is at where we are
-                    newImg.data[4*(newy*imgWidth+x)]   = path[x].r;
-                    newImg.data[4*(newy*imgWidth+x)+1] = path[x].g;
-                    newImg.data[4*(newy*imgWidth+x)+2] = path[x].b;
-                    newImg.data[4*(newy*imgWidth+x)+3] = 255;
+                    newImg.data[4*(newy*horizImgWidth+x)]   = path[x].r;
+                    newImg.data[4*(newy*horizImgWidth+x)+1] = path[x].g;
+                    newImg.data[4*(newy*horizImgWidth+x)+2] = path[x].b;
+                    newImg.data[4*(newy*horizImgWidth+x)+3] = 255;
                     newy += 1;
                 }
-                newImg.data[4*(newy*imgWidth+x)]   = imgData.data[4*(originaly*imgWidth+x)];
-                newImg.data[4*(newy*imgWidth+x)+1] = imgData.data[4*(originaly*imgWidth+x)+1];
-                newImg.data[4*(newy*imgWidth+x)+2] = imgData.data[4*(originaly*imgWidth+x)+2];
-                newImg.data[4*(newy*imgWidth+x)+3] = imgData.data[4*(originaly*imgWidth+x)+3];
+                newImg.data[4*(newy*horizImgWidth+x)]   = imgData.data[4*(originaly*horizImgWidth+x)];
+                newImg.data[4*(newy*horizImgWidth+x)+1] = imgData.data[4*(originaly*horizImgWidth+x)+1];
+                newImg.data[4*(newy*horizImgWidth+x)+2] = imgData.data[4*(originaly*horizImgWidth+x)+2];
+                newImg.data[4*(newy*horizImgWidth+x)+3] = imgData.data[4*(originaly*horizImgWidth+x)+3];
                 newy += 1;
                 originaly += 1;
             }
         }
 
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.putImageData(newImg, 0, 0);
+        horizcontext.clearRect(0, 0, horizcanvas.width, horizcanvas.height);
+        horizcontext.putImageData(newImg, 0, 0);
 
     };
 
