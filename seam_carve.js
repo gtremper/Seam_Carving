@@ -49,11 +49,11 @@ $(document).ready(function(){
 
     horizimg.addEventListener("load", function () {
         horizcontext.clearRect(0, 0, horizcanvas.width, horizcanvas.height);
-		horizcanvas.height = horizimg.height*1.25;
+		horizcanvas.height = horizimg.height;
 		horizcanvas.width = horizimg.width;
 		horizImgHeight = horizimg.height;
 		horizImgWidth = horizimg.width;
-        $("#height-slider").slider({max: horizimg.height*1.25, value: horizimg.height});
+        $("#height-slider").slider({max: horizimg.height, value: horizimg.height});
         $("#height-slider").slider();
 		horizcontext.drawImage(horizimg, 0, 0);
 
