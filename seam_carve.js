@@ -385,9 +385,9 @@ $(document).ready(function(){
             newy = 0;
             for (var y=0; y < horizImgHeight; y+=1) {
                 if (path[x].index === newy) { // if path pixel is at where we are
-                    newImg.data[4*(newy*horizImgWidth+x)]   = path[x].r;
-                    newImg.data[4*(newy*horizImgWidth+x)+1] = path[x].g;
-                    newImg.data[4*(newy*horizImgWidth+x)+2] = path[x].b;
+                    newImg.data[4*(newy*horizImgWidth+x)]   = 255;
+                    newImg.data[4*(newy*horizImgWidth+x)+1] = 0;
+                    newImg.data[4*(newy*horizImgWidth+x)+2] = 0;
                     newImg.data[4*(newy*horizImgWidth+x)+3] = 255;
                     newy += 1;
                 }
