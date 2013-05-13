@@ -2,10 +2,14 @@ $(document).ready(function(){
 
 	var canvas = document.getElementById("myCanvas");
     var horizcanvas = document.getElementById("myHorizCanvas");
+    var gradientcanvas = document.getElementById("gradientCanvas");
 	var context = canvas.getContext("2d");
     var horizcontext = horizcanvas.getContext("2d");
+    var gradientcontext = gradientcanvas.getContext("2d");
     var img = new Image;
     var horizimg = new Image;
+    var gradientimg = new Image;
+    gradientimg.src = "images.jpeg";
     horizimg.src = "images-2.jpeg";
     img.src = "images.jpeg";
 	var mouseDown = false;
@@ -61,6 +65,31 @@ $(document).ready(function(){
 		horiz_lod = 0;
         horiz_cut_seams = Filters.get_horiz_paths(horizImgData); // uncomment to do horizontal
 
+    }, false);
+
+    gradientimg.addEventListener("load", function () {
+        gradientcontext.clearRect(0, 0, gradientcanvas.width, gradientcanvas.height);
+		gradientcanvas.height = gradientimg.height;
+		gradientcanvas.width = gradientimg.width;
+		gradientImgHeight = gradientimg.height;
+		gradientImgWidth = gradientimg.width;
+		gradientcontext.drawImage(gradientimg, 0, 0);
+        var imgData = gradientcontext.getImageData(0,0,gradientImgWidth,gradientImgHeight);
+        var output = gradientcontext.createImageData(gradientImgWidth, gradientImgHeight);
+        var pixels = imgData.data;
+        var pixel_data = [];
+        for (var i=0; i < pixels.length; i++) {
+            if (i%4 === 3) continue;
+            pixel_data.push(pixels[i]);
+        }
+        var energies = Filters.energy1(pixel_data,gradientImgWidth,gradientImgHeight);
+        for (var i=0; i < energies.length; i++) {
+            output.data[i*4] = energies[i];
+            output.data[i*4+1] = energies[i];
+            output.data[i*4+2] = energies[i];
+            output.data[i*4+3] = 255;
+        }
+        gradientcontext.putImageData(output,0,0);
     }, false);
 
 	// To enable drag and drop
