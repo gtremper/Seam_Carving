@@ -4,8 +4,10 @@ $(document).ready(function(){
     var horizcanvas = document.getElementById("myHorizCanvas");
 	var context = canvas.getContext("2d");
     var horizcontext = horizcanvas.getContext("2d");
-	var img = document.createElement("img");
-    var horizimg = document.createElement("img");
+    var img = new Image;
+    var horizimg = new Image;
+    horizimg.src = "images-2.jpeg";
+    img.src = "images.jpeg";
 	var mouseDown = false;
 	var hasText = true;
 	var imgWidth = -1;
