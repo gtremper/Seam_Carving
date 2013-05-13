@@ -49,25 +49,6 @@ $(document).ready(function(){
 		var imgData = context.getImageData(0,0,imgWidth,imgHeight);
 		cut_seams = Filters.get_paths(imgData);
 		lod = 0;
-	}, false);
-
-    horizimg.addEventListener("load", function () {
-        horizcontext.clearRect(0, 0, horizcanvas.width, horizcanvas.height);
-		horizcanvas.height = horizimg.height;
-		horizcanvas.width = horizimg.width;
-		horizImgHeight = horizimg.height;
-		horizImgWidth = horizimg.width;
-        $("#height-slider").slider({max: horizimg.height, value: horizimg.height});
-        $("#height-slider").slider();
-		horizcontext.drawImage(horizimg, 0, 0);
-
-		var horizImgData = horizcontext.getImageData(0,0,horizImgWidth,horizImgHeight);
-		horiz_lod = 0;
-        horiz_cut_seams = Filters.get_horiz_paths(horizImgData); // uncomment to do horizontal
-
-    }, false);
-
-    gradientimg.addEventListener("load", function () {
         gradientcontext.clearRect(0, 0, gradientcanvas.width, gradientcanvas.height);
 		gradientcanvas.height = gradientimg.height;
 		gradientcanvas.width = gradientimg.width;
@@ -90,6 +71,25 @@ $(document).ready(function(){
             output.data[i*4+3] = 255;
         }
         gradientcontext.putImageData(output,0,0);
+	}, false);
+
+    horizimg.addEventListener("load", function () {
+        horizcontext.clearRect(0, 0, horizcanvas.width, horizcanvas.height);
+		horizcanvas.height = horizimg.height;
+		horizcanvas.width = horizimg.width;
+		horizImgHeight = horizimg.height;
+		horizImgWidth = horizimg.width;
+        $("#height-slider").slider({max: horizimg.height, value: horizimg.height});
+        $("#height-slider").slider();
+		horizcontext.drawImage(horizimg, 0, 0);
+
+		var horizImgData = horizcontext.getImageData(0,0,horizImgWidth,horizImgHeight);
+		horiz_lod = 0;
+        horiz_cut_seams = Filters.get_horiz_paths(horizImgData); // uncomment to do horizontal
+
+    }, false);
+
+    gradientimg.addEventListener("load", function () {
     }, false);
 
 	// To enable drag and drop
@@ -127,6 +127,7 @@ $(document).ready(function(){
 				// Note: addEventListener doesn't work in Google Chrome for this event
 				reader.onload = function (evt) {
 					img.src = evt.target.result;
+					gradientimg.src = evt.target.result;
 				};
 				reader.readAsDataURL(file);
 			}
