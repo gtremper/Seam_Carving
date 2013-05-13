@@ -160,12 +160,12 @@ $(document).ready(function(){
             e.preventDefault();
             return false;
         } else if (e.keyCode == 38) {
-            down_horiz_lod(4);
+            down_horiz_lod(1);
             $("#height-slider").slider('setValue',horizImgHeight);
             e.preventDefault();
             return false;
         } else if (e.keyCode == 40) {
-            up_horiz_lod(4);
+            up_horiz_lod(1);
             $("#height-slider").slider('setValue',horizImgHeight);
             e.preventDefault();
             return false;
