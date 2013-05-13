@@ -10,7 +10,7 @@ $(document).ready(function(){
     var horizimg = new Image;
     var gradientimg = new Image;
     gradientimg.src = "images.jpeg";
-    horizimg.src = "images-2.jpeg";
+    horizimg.src = "balloon.jpg";
     img.src = "images.jpeg";
 	var mouseDown = false;
 	var hasText = true;
